@@ -1,0 +1,2032 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Risikomodell — Solhaugen Prosjekt / Areal-Gruppen</title>
+<style>
+ *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f3ef; color: #1a1a18; padding: 24px; min-height: 100vh; }
+ .wrapper { max-width: 860px; margin: 0 auto; }
+ .header { background: #1F3864; color: white; padding: 20px 26px 16px; border-radius: 10px 10px 0 0; }
+ .header h1 { font-size: 17px; font-weight: 500; letter-spacing: .01em; }
+ .header p { font-size: 12px; opacity: .7; margin-top: 3px; }
+ .header .badge { display: inline-block; background: #E24B4A; color: white; font-size: 11px; padding: 2px 10px; border-radius: 20px; margin-top: 6px; font-weight: 500; }
+ .card { background: white; border-radius: 0 0 10px 10px; border: 0.5px solid #d3d1c7; overflow: hidden; }
+ .tabs { display: flex; border-bottom: 1px solid #e0e0dc; background: #f7f7f5; overflow-x: auto; }
+ .tab { padding: 10px 18px; font-size: 13px; cursor: pointer; border-bottom: 2px solid transparent; color: #73726c; transition: all .15s; white-space: nowrap; user-select: none; }
+ .tab.active { border-bottom-color: #2E6090; color: #1a1a18; font-weight: 500; }
+ .tab:hover:not(.active) { background: white; }
+ .panel { display: none; padding: 20px 24px 28px; }
+ .panel.active { display: block; }
+
+ .scenario-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 20px; }
+ .scenario-card { border-radius: 8px; padding: 14px 16px; border: 1.5px solid transparent; }
+ .scenario-card.red { background: #FCEBEB; border-color: #F09595; }
+ .scenario-card.amber { background: #FAEEDA; border-color: #FAC775; }
+ .scenario-card.green { background: #EAF3DE; border-color: #C0DD97; }
+ .scenario-card h3 { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+ .scenario-card.red h3 { color: #A32D2D; }
+ .scenario-card.amber h3 { color: #854F0B; }
+ .scenario-card.green h3 { color: #3B6D11; }
+ .scenario-card p { font-size: 12px; line-height: 1.5; }
+ .scenario-card.red p { color: #791F1F; }
+ .scenario-card.amber p { color: #633806; }
+ .scenario-card.green p { color: #27500A; }
+ .scenario-card .score { font-size: 22px; font-weight: 500; margin: 6px 0 4px; }
+
+ .risk-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+ .risk-table th { background: #2C3E50; color: white; padding: 7px 10px; text-align: left; font-weight: 500; font-size: 11px; }
+ .risk-table td { padding: 7px 10px; border-bottom: 0.5px solid #e0e0dc; vertical-align: top; line-height: 1.4; }
+ .risk-table tr:last-child td { border-bottom: none; }
+ .risk-table tr:nth-child(even) td { background: #f7f7f5; }
+ .compact-table { font-size: 11px; }
+ .compact-table th { font-size: 10px; padding: 6px 8px; white-space: nowrap; }
+ .compact-table td { padding: 6px 8px; font-size: 11px; }
+ .risk-table th { white-space: nowrap; }
+ .risk-table td.nowrap { white-space: nowrap; }
+ .risk-table td.relevans { white-space: normal; min-width: 180px; }
+ .pill { display: inline-block; padding: 2px 9px; border-radius: 12px; font-size: 11px; font-weight: 500; white-space: nowrap; }
+ .pill-red { background: #F7C1C1; color: #791F1F; }
+ .pill-amber { background: #FAC775; color: #633806; }
+ .pill-green { background: #C0DD97; color: #27500A; }
+ .pill-blue { background: #B5D4F4; color: #0C447C; }
+
+ .kv-grid { display: grid; gap: 10px; }
+ .kv { background: #f7f7f5; border-radius: 8px; padding: 12px 14px; }
+ .kv label { font-size: 11px; color: #73726c; display: block; margin-bottom: 4px; }
+ .kv .val { font-size: 19px; font-weight: 500; }
+ .kv .sub { font-size: 11px; color: #73726c; margin-top: 2px; }
+
+ .section-title { font-size: 11px; font-weight: 500; color: #73726c; margin-bottom: 10px; margin-top: 18px; text-transform: uppercase; letter-spacing: .06em; }
+ .section-title:first-child { margin-top: 0; }
+
+ .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+ .bar-label { font-size: 12px; min-width: 160px; color: #73726c; }
+ .bar-track { flex: 1; height: 10px; background: #e0e0dc; border-radius: 5px; overflow: hidden; }
+ .bar-fill { height: 100%; border-radius: 5px; }
+ .bar-val { font-size: 12px; min-width: 60px; text-align: right; font-weight: 500; }
+
+ .conclusion { border-left: 3px solid #3B6D11; border-radius: 0 8px 8px 0; padding: 14px 16px; margin-top: 16px; background: #EAF3DE; }
+ .conclusion.warn { background: #FAEEDA; border-color: #BA7517; }
+ .conclusion.danger { background: #FCEBEB; border-color: #A32D2D; }
+ .conclusion h4 { font-size: 13px; font-weight: 500; margin-bottom: 5px; color: #27500A; }
+ .conclusion.warn h4 { color: #633806; }
+ .conclusion.danger h4 { color: #791F1F; }
+ .conclusion p { font-size: 12px; line-height: 1.55; }
+
+ .timeline { position: relative; padding-left: 20px; }
+ .timeline::before { content: ''; position: absolute; left: 5px; top: 0; bottom: 0; width: 1.5px; background: #d3d1c7; }
+ .tl-item { position: relative; margin-bottom: 14px; }
+ .tl-dot { position: absolute; left: -18px; top: 3px; width: 10px; height: 10px; border-radius: 50%; }
+ .tl-dot.red { background: #E24B4A; }
+ .tl-dot.amber { background: #EF9F27; }
+ .tl-dot.blue { background: #378ADD; }
+ .tl-dot.green { background: #639922; }
+ .tl-title { font-size: 13px; font-weight: 500; }
+ .tl-body { font-size: 12px; color: #73726c; line-height: 1.5; margin-top: 2px; }
+
+ .rate-box { background: #FCEBEB; border: 1.5px solid #F09595; border-radius: 8px; padding: 12px 16px; margin-bottom: 18px; }
+ .rate-box strong { font-size: 14px; color: #791F1F; font-weight: 500; display: block; margin-bottom: 4px; }
+ .rate-box p { font-size: 12px; color: #791F1F; line-height: 1.45; }
+
+ .two-col { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 14px; }
+
+ @media (max-width: 600px) {
+ .scenario-grid { grid-template-columns: 1fr; }
+ .two-col { grid-template-columns: 1fr; }
+ .kv-grid { grid-template-columns: repeat(2, 1fr); }
+ }
+</style>
+</head>
+<body>
+<div class="wrapper">
+ <div class="header">
+ <h1>Risikomodell — Areal-Gruppen / Solhaugen Prosjekt AS</h1>
+ <p>Styretilpasset beslutningsgrunnlag · Oppdatert 24. mars 2026</p>
+ <span class="badge">Norges Bank hever rentebanen torsdag 26. mars</span>
+ </div>
+
+ <div class="card">
+ <div class="tabs">
+ <div class="tab active" onclick="showTab('oversikt', this)">Oversikt</div>
+ <div class="tab" onclick="showTab('renter', this)">Renteeffekt</div>
+ <div class="tab" onclick="showTab('borettslag', this)">Borettslag</div>
+ <div class="tab" onclick="showTab('alternativer', this)">Alternativer</div>
+ <div class="tab" onclick="showTab('risikomatrise', this)">Risikomatrise</div>
+ <div class="tab" onclick="showTab('konklusjon', this)">Anbefaling</div>
+ <div class="tab" onclick="showTab('naverdi', this)">Nåverdi</div>
+ <div class="tab" onclick="showTab('kontantstrøm', this)">Kontantstrøm</div>
+ <div class="tab" onclick="showTab('logg', this)">Endringslogg</div>
+ </div>
+
+ <!-- OVERSIKT -->
+ <div id="tab-oversikt" class="panel active">
+ <div class="rate-box">
+ <strong>Rentesjokk torsdag: Norges Bank signaliserer høyere rentebane</strong>
+ <p>Scenarioet som legges til grunn: styringsrenten holdes på 4,0 % eller heves 0,25–0,5 % i 2026–2028. Boliglånsrenten vil ligge 5,0–5,5 % i hele VTV-prosjektets tidshorisont. Dette forverrer kjøpekraften til målgruppen (55+). Finanskostnad byggelån er beregnet til 1 532 000 ved 12 mnd byggetid og 12 like månedlige innbetalinger (faktor 13/24). Ventekostnad er beregnet til 200 000/år. Glimt-stadion ferdigstilles 2028.</p>
+ </div>
+
+ <div class="section-title">Nåsituasjon for Areal-Gruppen</div>
+ <div class="kv-grid" style="grid-template-columns: repeat(4, minmax(0,1fr)); margin-bottom: 20px;">
+ <div class="kv"><label>Eierandel SP</label><div class="val">40 %</div><div class="sub">400 av 1 000 aksjer</div></div>
+ <div class="kv"><label>Innskutt EK</label><div class="val">1,12 MNOK</div><div class="sub">40 % av 2,8M totalt</div></div>
+ <div class="kv"><label>Aksjonærlån</label><div class="val">2,32 MNOK</div><div class="sub">Rentefritt (styrevedtak)</div></div>
+ <div class="kv"><label>Total eksponering AG</label><div class="val">3,44 MNOK</div><div class="sub">Lån + EK-andel</div></div>
+ </div>
+
+ <div class="section-title">Prosjektøkonomi VTV — tre prisnivåer</div>
+ <div class="kv-grid" style="grid-template-columns: repeat(3, minmax(0,1fr)); margin-bottom: 8px;">
+ <div class="kv"><label>Totalkostnad kalkyle</label><div class="val">39,5 MNOK</div><div class="sub">Inkl. tomtekost, 8 leil., 12 mnd byggetid</div></div>
+ <div class="kv"><label>Break-even per leil.</label><div class="val">4 941 000</div><div class="sub">0 % DB — full kalkyle inkl. tomt</div></div>
+ <div class="kv"><label>Målpris (Ekhorn)</label><div class="val" style="color:#3B6D11;">5 500 000</div><div class="sub">+10,2 % DB · tot. +4,5 MNOK</div></div>
+ </div>
+ <div class="kv-grid" style="grid-template-columns: repeat(3, minmax(0,1fr)); margin-bottom: 8px;">
+ <div class="kv"><label>Markedspris DNB (juni 2024)</label><div class="val" style="color:#A32D2D;">4 650–4 975 000</div><div class="sub">Lav under, høy over break-even</div></div>
+ <div class="kv"><label>Gap: DNB vs. break-even</label><div class="val" style="color:#A32D2D;">−291 til +35 000</div><div class="sub">Per leilighet</div></div>
+ <div class="kv"><label>Gap: DNB vs. målpris</label><div class="val" style="color:#A32D2D;">−525 til −850 000</div><div class="sub">Per leilighet</div></div>
+ </div>
+ <div style="background:#f7f7f5;border-radius:8px;padding:10px 14px;border:0.5px solid #d3d1c7;margin-bottom:20px;">
+ <div style="font-size:10px;font-weight:500;color:#73726c;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Fremoverskuende beslutningskalkyle — gjenstående kostnader + tomt som EK</div>
+ <div class="kv-grid" style="grid-template-columns: repeat(4, minmax(0,1fr));">
+ <div class="kv" style="background:white;"><label>Gjenstående kostnader</label><div class="val" style="font-size:16px;">31,3 MNOK</div><div class="sub">Ekskl. tomt og sunk costs</div></div>
+ <div class="kv" style="background:white;"><label>Tomt (pantesikkerhet)</label><div class="val" style="font-size:16px;">4,95 MNOK</div><div class="sub">Eiendel — sikkerhet for byggelån</div></div>
+ <div class="kv" style="background:white;"><label>Fremover break-even</label><div class="val" style="font-size:16px;color:#3B6D11;">4 536 000</div><div class="sub">Gjenstående + tomt ÷ 8</div></div>
+ <div class="kv" style="background:white;"><label>DNB vs. fremover BE</label><div class="val" style="font-size:16px;color:#3B6D11;">+114 til +439 000</div><div class="sub">Markedspris over fremover BE</div></div>
+ </div>
+ <p style="font-size:11px;color:#73726c;margin-top:8px;">Gjenstående: 4500+4501+4504+4505+4506+4510+4513+4517 = 31 307 000 + finanskostnad 1 532 000 = 32 839 000 totalt gjenstående inkl. finans. Tomt 4 950 840 tillegges som EK-stilt kapital: sum 36 290 000 ÷ 8 = 4 536 000. Merk: dette er beslutningskalkylen for alternativ A (bygg) — ikke regnskapsmessig break-even som inkluderer alle historiske kostnader.</p>
+ </div>
+
+ <div class="section-title">Rentescenario — Norges Banks nye rentebane</div>
+ <div class="bar-row"><div class="bar-label">Styringsrente i dag</div><div class="bar-track"><div class="bar-fill" style="width:80%;background:#2E6090;"></div></div><div class="bar-val">4,0 %</div></div>
+ <div class="bar-row"><div class="bar-label">NB-scenario: holder</div><div class="bar-track"><div class="bar-fill" style="width:80%;background:#2E6090;"></div></div><div class="bar-val">4,0 %</div></div>
+ <div class="bar-row"><div class="bar-label">NB-scenario: +0,25 %</div><div class="bar-track"><div class="bar-fill" style="width:85%;background:#EF9F27;"></div></div><div class="bar-val">4,25 %</div></div>
+ <div class="bar-row"><div class="bar-label">NB-scenario: +0,5 %</div><div class="bar-track"><div class="bar-fill" style="width:90%;background:#E24B4A;"></div></div><div class="bar-val">4,5 %</div></div>
+ <div class="bar-row"><div class="bar-label">Eff. boliglånsrente</div><div class="bar-track"><div class="bar-fill" style="width:95%;background:#A32D2D;"></div></div><div class="bar-val">5,0–5,5 %</div></div>
+ </div>
+
+ <!-- RENTEEFFEKT -->
+ <div id="tab-renter" class="panel">
+
+ <div class="section-title">Lønn alle aldersgrupper — Bodø 2025 (SSB tabell 12852)</div>
+ <div class="conclusion" style="background:#E6F1FB;border-color:#378ADD;margin-bottom:14px;">
+ <h4 style="color:#0C447C;">55+ er Bodøs kjøpesterkeste gruppe for énhusholdninger</h4>
+ <p style="color:#0C447C;">Gruppen 55+ har høyeste median- og gjennomsnittslønn av alle aldersgrupper i Bodø — 61 880/mnd i median og 67 750/mnd i gjennomsnitt (SSB 2025). Det er 9 % over 30–54-gruppen i median og 7 % over i gjennomsnitt. De er overrepresentert som énhusholdninger med lav restgjeld og høy frigjort EK fra nedsalg av enebolig. Kombinert med beliggenhetspreferansen mot sykehus, sentrum og kommunikasjoner er dette den strukturelt sterkeste kjøperdriveren for VTV-prosjektet.</p>
+ </div>
+
+ <div style="overflow-x:auto;">
+ <table class="risk-table compact-table" style="min-width:720px;">
+ <thead>
+ <tr>
+ <th>Aldersgruppe</th>
+ <th>Median 2025<br><span style="font-weight:400;font-size:10px;">SSB base</span></th>
+ <th>Gjennomsnitt 2025</th>
+ <th>Nedre kvartil 2025</th>
+ <th>Øvre kvartil 2025</th>
+ <th style="white-space:normal;min-width:80px;">Mai 2026<br><span style="font-weight:400;font-size:10px;">+4,2 % (TBU)</span></th>
+ <th style="white-space:normal;min-width:80px;">Juni 2027<br><span style="font-weight:400;font-size:10px;">+4,2 % +4,0 %</span></th>
+ <th style="white-space:normal;min-width:80px;">Maks lån 2027<br><span style="font-weight:400;font-size:10px;">5 × årslønn</span></th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr style="background:#f7f7f5;">
+ <td>Alle aldersgrupper</td>
+ <td>56 620</td>
+ <td>61 690</td>
+ <td>46 350</td>
+ <td>69 000</td>
+ <td>58 998</td>
+ <td>61 359</td>
+ <td>3 682 000</td>
+ </tr>
+ <tr>
+ <td>Under 30 år</td>
+ <td>45 450</td>
+ <td>49 090</td>
+ <td>37 050</td>
+ <td>54 580</td>
+ <td>47 359</td>
+ <td>49 253</td>
+ <td>2 955 000</td>
+ </tr>
+ <tr style="background:#f7f7f5;">
+ <td>30–54 år</td>
+ <td>58 580</td>
+ <td>63 530</td>
+ <td>48 730</td>
+ <td>70 380</td>
+ <td>61 060</td>
+ <td>63 500</td>
+ <td>3 810 000</td>
+ </tr>
+ <tr style="background:#EAF3DE;">
+ <td><strong>55 år og eldre ★</strong></td>
+ <td><strong>61 880</strong></td>
+ <td><strong>67 750</strong></td>
+ <td><strong>51 700</strong></td>
+ <td><strong>75 000</strong></td>
+ <td><strong>64 499</strong></td>
+ <td><strong>67 060</strong></td>
+ <td><strong>4 024 000</strong></td>
+ </tr>
+ <tr style="background:#EAF3DE;">
+ <td><strong>55+ øvre kvartil</strong></td>
+ <td><strong>75 000</strong></td>
+ <td>—</td>
+ <td>—</td>
+ <td>—</td>
+ <td><strong>78 150</strong></td>
+ <td><strong>81 276</strong></td>
+ <td><strong>4 877 000</strong></td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ <p style="font-size:11px;color:#73726c;margin-top:6px;">Kilde: SSB tabell 12852, Bodø 2025. Fremskrevet: +4,2 % fra 1. mai 2026 (TBU-anslag), +4,0 % fra 1. mai 2027. Faktor juni 2027: ×1,042 × 1,040 = ×1,08368. Maks lån = 5 × årslønn (juni 2027-lønn).</p>
+
+ <div class="section-title" style="margin-top:22px;">Kjøpekraftanalyse — énhusholdninger ved 5,0 % boliglånsrente</div>
+ <p style="font-size:12px;color:#73726c;margin-bottom:6px;">EK fra eneboligsalg = est. 1 200 000. BE = 4 941 000. Målpris = 5 500 000. To tidspunkter: nåsituasjon (SSB 2025) og fremskrevet til overtakelse juni 2027.</p>
+
+ <div style="overflow-x:auto;">
+ <table class="risk-table compact-table" style="min-width:780px;">
+ <thead>
+ <tr>
+ <th>Aldersgruppe</th>
+ <th style="white-space:normal;min-width:75px;">Median nå<br><span style="font-weight:400;font-size:10px;">SSB 2025</span></th>
+ <th style="white-space:normal;min-width:80px;">Kjøpekraft nå<br><span style="font-weight:400;font-size:10px;">m/EK 1,2M</span></th>
+ <th style="white-space:normal;min-width:80px;">Margin vs. BE<br><span style="font-weight:400;font-size:10px;">nå</span></th>
+ <th style="white-space:normal;min-width:80px;">Median juni 2027<br><span style="font-weight:400;font-size:10px;">+8,37 %</span></th>
+ <th style="white-space:normal;min-width:80px;">Kjøpekraft 2027<br><span style="font-weight:400;font-size:10px;">m/EK 1,2M</span></th>
+ <th style="white-space:normal;min-width:80px;">Margin vs. BE<br><span style="font-weight:400;font-size:10px;">juni 2027</span></th>
+ <th style="white-space:normal;min-width:80px;">Margin vs. MP<br><span style="font-weight:400;font-size:10px;">juni 2027</span></th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>Under 30 år</td>
+ <td>45 450</td>
+ <td>3 927 000</td>
+ <td style="color:#A32D2D"><strong>−1 014 000</strong></td>
+ <td>49 253</td>
+ <td>3 755 000</td>
+ <td style="color:#A32D2D"><strong>−1 186 000</strong></td>
+ <td style="color:#A32D2D"><strong>−1 745 000</strong></td>
+ </tr>
+ <tr style="background:#f7f7f5;">
+ <td>Alle aldre (snitt)</td>
+ <td>56 620</td>
+ <td>4 597 000</td>
+ <td style="color:#A32D2D"><strong>−344 000</strong></td>
+ <td>61 359</td>
+ <td>4 882 000</td>
+ <td style="color:#A32D2D"><strong>−59 000</strong></td>
+ <td style="color:#A32D2D"><strong>−618 000</strong></td>
+ </tr>
+ <tr>
+ <td>30–54 år</td>
+ <td>58 580</td>
+ <td>4 715 000</td>
+ <td style="color:#A32D2D"><strong>−226 000</strong></td>
+ <td>63 500</td>
+ <td>5 010 000</td>
+ <td style="color:#3B6D11"><strong>+69 000</strong></td>
+ <td style="color:#A32D2D"><strong>−490 000</strong></td>
+ </tr>
+ <tr style="background:#EAF3DE;">
+ <td><strong>55+ median ★</strong></td>
+ <td><strong>61 880</strong></td>
+ <td><strong>4 913 000</strong></td>
+ <td style="color:#A32D2D"><strong>−28 000</strong></td>
+ <td><strong>67 060</strong></td>
+ <td><strong>5 224 000</strong></td>
+ <td style="color:#3B6D11"><strong>+283 000</strong></td>
+ <td style="color:#A32D2D"><strong>−276 000</strong></td>
+ </tr>
+ <tr style="background:#EAF3DE;">
+ <td><strong>55+ øvre kvartil ★</strong></td>
+ <td><strong>75 000</strong></td>
+ <td><strong>5 700 000</strong></td>
+ <td style="color:#3B6D11"><strong>+759 000</strong></td>
+ <td><strong>81 276</strong></td>
+ <td><strong>6 077 000</strong></td>
+ <td style="color:#3B6D11"><strong>+1 136 000</strong></td>
+ <td style="color:#3B6D11"><strong>+577 000</strong></td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ <p style="font-size:11px;color:#73726c;margin-top:6px;">Kjøpekraft = maks lån (5 × årslønn) + EK 1 200 000. Juni 2027-lønn: base 2025 × 1,08368. Mnd.kost 5,0 %: annuitetsfaktor 0,005846 × maks lån.</p>
+
+ <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px;">
+ <div style="background:#FAEEDA;border-radius:8px;padding:12px 14px;border:1px solid #FAC775;">
+ <div style="font-size:11px;font-weight:500;color:#633806;margin-bottom:4px;">Nåsituasjon (SSB 2025)</div>
+ <div style="font-size:15px;font-weight:500;color:#BA7517;">55+ median −28 000 vs. BE</div>
+ <div style="font-size:11px;color:#633806;margin-top:2px;">Kun 55+ øvre kvartil over begge prisreferanser</div>
+ </div>
+ <div style="background:#EAF3DE;border-radius:8px;padding:12px 14px;border:1px solid #C0DD97;">
+ <div style="font-size:11px;font-weight:500;color:#27500A;margin-bottom:4px;">Overtakelse juni 2027 (+8,37 % lønn)</div>
+ <div style="font-size:15px;font-weight:500;color:#3B6D11;">55+ median +283 000 over BE</div>
+ <div style="font-size:11px;color:#27500A;margin-top:2px;">30–54 og 55+ median over break-even · 55+ øvre kv. over målpris</div>
+ </div>
+ </div>
+
+ <div class="conclusion" style="margin-top:14px;">
+ <h4>Lønnsoppgjørene 2026–2027 løfter tre grupper over break-even ved overtakelse</h4>
+ <p>Med lønnsøkning på 4,2 % fra mai 2026 og 4,0 % fra mai 2027 (samlet faktor ×1,08368 ved juni 2027) endrer kjøpekraftbildet seg vesentlig: 30–54-gruppen går fra −226 000 til +69 000 over break-even, 55+ median fra −28 000 til +283 000 over break-even, og 55+ øvre kvartil styrker sin margin fra +759 000 til +1 136 000 over break-even. 55+ median er nå +283 000 over break-even, men fortsatt −276 000 under målpris — noe som bekrefter at målpris er realistisk for 55+ øvre kvartil og for tohusholdninger, men er i overkant for 55+ median uten høyere EK.</p>
+ </div>
+
+ <div class="section-title" style="margin-top:24px;">Husholdningsstruktur Bodø — SSB tabell 06944, 2024</div>
+ <div style="overflow-x:auto;margin-bottom:14px;">
+ <table class="risk-table compact-table" style="min-width:520px;">
+ <thead>
+ <tr>
+ <th>Husholdningstype</th>
+ <th>Antall</th>
+ <th>Andel</th>
+ <th>Kategori</th>
+ <th>Relevans for VTV</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td><strong>Alle husholdninger</strong></td>
+ <td><strong>25 782</strong></td>
+ <td><strong>100 %</strong></td>
+ <td>—</td>
+ <td>—</td>
+ </tr>
+ <tr style="background:#f7f7f5;">
+ <td>Aleneboende</td>
+ <td>10 948</td>
+ <td>42,5 %</td>
+ <td><span class="pill pill-blue">Énhusholdning</span></td>
+ <td class="relevans">Kjøpekraft utilstrekkelig ved median inntekt</td>
+ </tr>
+ <tr>
+ <td>Enslig mor/far m/barn 0–17</td>
+ <td>1 077</td>
+ <td>4,2 %</td>
+ <td><span class="pill pill-blue">Énhusholdning</span></td>
+ <td class="relevans">Nærmest BE — lite relevant for VTVs format</td>
+ </tr>
+ <tr style="background:#EAF3DE;">
+ <td><strong>Par uten barn ★</strong></td>
+ <td><strong>6 423</strong></td>
+ <td><strong>24,9 %</strong></td>
+ <td><span class="pill pill-green">Tohusholdning</span></td>
+ <td class="relevans">Primærmålgruppe — kjøpekraft godt over målpris</td>
+ </tr>
+ <tr style="background:#EAF3DE;">
+ <td>Par med barn 0–17 år</td>
+ <td>4 714</td>
+ <td>18,3 %</td>
+ <td><span class="pill pill-green">Tohusholdning</span></td>
+ <td class="relevans">Høy kjøpekraft — men VTVs areal for lite</td>
+ </tr>
+ <tr style="background:#f7f7f5;">
+ <td>Andre husholdninger (rest)</td>
+ <td>2 620</td>
+ <td>10,2 %</td>
+ <td>—</td>
+ <td class="relevans">Voksne barn hjemme, kollektiver m.m.</td>
+ </tr>
+ <tr style="background:#D6E4F0;">
+ <td><strong>Énhusholdninger totalt</strong></td>
+ <td><strong>12 025</strong></td>
+ <td><strong>46,6 %</strong></td>
+ <td><span class="pill pill-blue">Énhusholdning</span></td>
+ <td class="relevans">Kun toppsjikt (55+ øvre kv.) er aktuell kjøpergruppe</td>
+ </tr>
+ <tr style="background:#C0DD97;">
+ <td><strong>Tohusholdninger (par) totalt</strong></td>
+ <td><strong>11 137</strong></td>
+ <td><strong>43,2 %</strong></td>
+ <td><span class="pill pill-green">Tohusholdning</span></td>
+ <td class="relevans">Par uten barn (6 423) er reell kjøperstyrke</td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ <p style="font-size:11px;color:#73726c;margin-bottom:14px;">Kilde: SSB tabell 06944, Bodø 2024. «Andre husholdninger» = differansen mellom alle og de fire spesifiserte typene (25 782 − 23 162 = 2 620).</p>
+
+ <div class="section-title">Kjøpekraftanalyse — alle husholdningstyper (SSB 06944, Bodø 2024)</div>
+ <p style="font-size:12px;color:#73726c;margin-bottom:6px;">Median husholdningsinntekt etter skatt fra SSB. Maks lån = 5 × samlet bruttoinntekt. EK = est. 1 200 000. BE = 4 941 000. Målpris = 5 500 000. To tidspunkter: nåsituasjon (SSB 2024) og fremskrevet til overtakelse juni 2027 (faktor ×1,08368).</p>
+ <div style="overflow-x:auto;">
+ <table class="risk-table compact-table" style="min-width:820px;">
+ <thead>
+ <tr>
+ <th>Husholdningstype</th>
+ <th>Ant. hushold.</th>
+ <th style="white-space:normal;min-width:80px;">Netto/mnd nå<br><span style="font-weight:400;font-size:10px;">SSB 2024</span></th>
+ <th style="white-space:normal;min-width:80px;">Kjøpekraft nå<br><span style="font-weight:400;font-size:10px;">m/EK 1,2M</span></th>
+ <th style="white-space:normal;min-width:80px;">Margin vs. BE<br><span style="font-weight:400;font-size:10px;">nå</span></th>
+ <th style="white-space:normal;min-width:80px;">Netto/mnd 2027<br><span style="font-weight:400;font-size:10px;">+8,37 %</span></th>
+ <th style="white-space:normal;min-width:80px;">Kjøpekraft 2027<br><span style="font-weight:400;font-size:10px;">m/EK 1,2M</span></th>
+ <th style="white-space:normal;min-width:80px;">Margin vs. BE<br><span style="font-weight:400;font-size:10px;">juni 2027</span></th>
+ <th style="white-space:normal;min-width:80px;">Margin vs. MP<br><span style="font-weight:400;font-size:10px;">juni 2027</span></th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>Aleneboende</td>
+ <td>10 948</td>
+ <td>34 092</td>
+ <td>3 804 000</td>
+ <td style="color:#A32D2D"><strong>−1 137 000</strong></td>
+ <td>36 946</td>
+ <td>4 023 000</td>
+ <td style="color:#A32D2D"><strong>−918 000</strong></td>
+ <td style="color:#A32D2D"><strong>−1 477 000</strong></td>
+ </tr>
+ <tr style="background:#f7f7f5;">
+ <td>Enslig mor/far m/barn</td>
+ <td>1 077</td>
+ <td>49 217</td>
+ <td>4 937 500</td>
+ <td style="color:#A32D2D"><strong>−3 000</strong></td>
+ <td>53 332</td>
+ <td>5 250 500</td>
+ <td style="color:#3B6D11"><strong>+310 000</strong></td>
+ <td style="color:#A32D2D"><strong>−250 000</strong></td>
+ </tr>
+ <tr style="background:#EAF3DE;">
+ <td><strong>Par uten barn ★</strong></td>
+ <td><strong>6 423</strong></td>
+ <td><strong>73 158</strong></td>
+ <td><strong>6 829 500</strong></td>
+ <td style="color:#3B6D11"><strong>+1 889 000</strong></td>
+ <td><strong>79 282</strong></td>
+ <td><strong>7 299 500</strong></td>
+ <td style="color:#3B6D11"><strong>+2 359 000</strong></td>
+ <td style="color:#3B6D11"><strong>+1 800 000</strong></td>
+ </tr>
+ <tr style="background:#EAF3DE;">
+ <td><strong>Par med barn 0–17 år</strong></td>
+ <td><strong>4 714</strong></td>
+ <td><strong>97 283</strong></td>
+ <td><strong>8 900 000</strong></td>
+ <td style="color:#3B6D11"><strong>+3 959 000</strong></td>
+ <td><strong>105 427</strong></td>
+ <td><strong>9 544 500</strong></td>
+ <td style="color:#3B6D11"><strong>+4 604 000</strong></td>
+ <td style="color:#3B6D11"><strong>+4 044 000</strong></td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ <p style="font-size:11px;color:#73726c;margin-top:6px;">Kilde: SSB 06944, Bodø 2024. Juni 2027: samlet bruttoinntekt × 1,08368 → maks lån 5 × fremskrevet årsbruttoinntekt + EK 1 200 000. Par med barn etterspør typisk større boliger enn VTVs 63–67 m².</p>
+
+ <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px;">
+ <div style="background:#FAEEDA;border-radius:8px;padding:12px 14px;border:1px solid #FAC775;">
+ <div style="font-size:11px;font-weight:500;color:#633806;margin-bottom:3px;">Nåsituasjon — enslig mor/far marginalt under BE</div>
+ <div style="font-size:15px;font-weight:500;color:#BA7517;">−3 000 vs. break-even</div>
+ <div style="font-size:11px;color:#633806;margin-top:2px;">Aleneboende −1 137 000 under — ikke realistisk målgruppe</div>
+ </div>
+ <div style="background:#EAF3DE;border-radius:8px;padding:12px 14px;border:1px solid #C0DD97;">
+ <div style="font-size:11px;font-weight:500;color:#27500A;margin-bottom:3px;">Juni 2027 — enslig mor/far over BE, par godt over MP</div>
+ <div style="font-size:15px;font-weight:500;color:#3B6D11;">Par uten barn +1 800 000 over målpris</div>
+ <div style="font-size:11px;color:#27500A;margin-top:2px;">Lønnsoppgjørene styrker kjøpekraften merkbart for alle grupper</div>
+ </div>
+ </div>
+
+ <div class="conclusion" style="margin-top:14px;">
+ <h4>Par uten barn er den klart sterkeste kjøpergruppen for VTV</h4>
+ <p>Med lønnsoppgjørene i 2026 og 2027 styrkes kjøpekraften til par uten barn fra 6 830 000 til 7 300 000 — 1 800 000 over målpris og 2 359 000 over break-even ved overtakelse juni 2027. Enslig mor/far med barn går fra marginalt under break-even (−3 000) til +310 000 over break-even. Aleneboende forblir godt under break-even. Bodø har 6 423 husholdninger i gruppen par uten barn, noe som utgjør et reelt og kjøpesterkt marked for VTVs format.</p>
+ </div>
+
+ <div class="section-title" style="margin-top:22px;">Effekt på finanskostnader VTV-prosjektet</div>
+ <p style="font-size:11px;color:#73726c;margin-bottom:8px;">12 måneders byggetid. 12 like månedlige innbetalinger til entreprenør — gjennomsnittlig uttrekk 54,17 % av byggelån (faktor 13/24). Byggelån 28 MNOK. Provisjon 1,5 % p.a. på full ramme. Etableringsgebyr 50 000.</p>
+ <table class="risk-table">
+ <thead><tr><th>Post</th><th>Kalkyle (7 % rente)</th><th>+0,25 % (7,25 %)</th><th>+0,5 % (7,5 %)</th></tr></thead>
+ <tbody>
+ <tr><td>Byggelånsrenter (28M × 54,17 % snitt × rente × 12 mnd)</td><td>1 062 000</td><td>1 099 000</td><td>1 138 000</td></tr>
+ <tr><td>Provisjon (1,5 % p.a. × 28M × 12 mnd)</td><td>420 000</td><td>420 000</td><td>420 000</td></tr>
+ <tr><td>Etableringsgebyr</td><td>50 000</td><td>50 000</td><td>50 000</td></tr>
+ <tr><td><strong>Total finanskostnad byggelån</strong></td><td><strong>1 532 000</strong></td><td><strong>1 569 000</strong></td><td><strong>1 608 000</strong></td></tr>
+ <tr><td>Ekstra finanskostnad vs. kalkyle</td><td>0</td><td>+37 000</td><td>+76 000</td></tr>
+ <tr><td>Effekt på dekningsbidrag</td><td>−3,8 %</td><td>−3,9 %</td><td>−4,0 %</td></tr>
+ <tr><td>Krav til snittpris for 10 % DB</td><td>5 434 000</td><td>5 440 000</td><td>5 445 000</td></tr>
+ </tbody>
+ </table>
+ <p style="font-size:11px;color:#73726c;margin-top:6px;">Vs. tidligere kalkyle med 18 mnd og 70 % snitt: finanskostnad var 2 460 000. Reduksjon med 12 mnd byggetid og jevnt uttrekk: −928 000. Krav til snittpris for 10 % DB er dermed 184 000 lavere enn tidligere beregnet.</p>
+ </div>
+
+ <!-- ALTERNATIVER -->
+ <div id="tab-alternativer" class="panel">
+ <div class="section-title">Tre strategiske alternativer for Areal-Gruppen</div>
+ <div class="scenario-grid">
+ <div class="scenario-card red">
+ <h3>Alt A — Bygge nå</h3>
+ <div class="score" style="color:#A32D2D;">Risiko: Høy</div>
+ <p>Forhåndssalg av 5/8 til markedspris som ikke dekker break-even. LinkPro vil gjennomføre. AG må stille ytterligere ~1,5 MNOK i ny EK.</p>
+ </div>
+ <div class="scenario-card amber">
+ <h3>Alt B — Vent 1–2 år</h3>
+ <div class="score" style="color:#854F0B;">Risiko: Moderat</div>
+ <p>Ventekostnad 200 000/år (kun banklånsrente). Stadion-effekt fra Glimt først fra 2028. Renteheving forverrer kjøpekraft.</p>
+ </div>
+ <div class="scenario-card green">
+ <h3>Alt C — Selg aksjer + krev lån</h3>
+ <div class="score" style="color:#3B6D11;">Risiko: Lav</div>
+ <p>Selg 40 % til LinkPro. Krev tilbakebetaling av aksjonærlån 2,32 MNOK. Fri fra videre eksponering i svakt marked og stigende renter.</p>
+ </div>
+ </div>
+
+ <div class="section-title">Sammenligningsanalyse — Areal-Gruppens nettoutfall</div>
+ <table class="risk-table">
+ <thead><tr><th>Utfallsparameter</th><th>Alt A — Bygg</th><th>Alt B — Vent</th><th>Alt C — Selg aksjer</th></tr></thead>
+ <tbody>
+ <tr><td>Sikkert kontantutfall nå</td><td style="color:#A32D2D">−1,5 MNOK (ny EK)</td><td>0</td><td style="color:#3B6D11">+2,32 MNOK</td></tr>
+ <tr><td>Ventekostnad per år</td><td>N/A</td><td>−200 000/år</td><td>0</td></tr>
+ <tr><td>Oppsida ved målpris (5,5M/leil.)</td><td style="color:#3B6D11">+1,79 MNOK (AG 40 %)</td><td style="color:#3B6D11">+1,79 MNOK (utsatt)</td><td>0 — kun lån</td></tr>
+ <tr><td>Utfall ved full kalkyle BE (4,94M)</td><td>0 DB — tap på hist. EK</td><td>Samme, utsatt</td><td>+2,32 MNOK (lån)</td></tr>
+ <tr style="background:#EAF3DE;"><td><strong>Utfall ved fremover BE (4,54M) ★</strong></td><td style="color:#3B6D11"><strong>Positivt — dekker gjenstående</strong></td><td>Samme, utsatt</td><td style="color:#3B6D11">+2,32 MNOK (lån)</td></tr>
+ <tr><td>Utfall ved markedspris lav (4,65M)</td><td style="color:#3B6D11">+114 000/leil. over fremover BE</td><td style="color:#A32D2D">Forverres m/tid</td><td style="color:#3B6D11">+2,32 MNOK (upåvirket)</td></tr>
+ <tr><td>Ny kapital må stilles</td><td><span class="pill pill-red">Ja, ~1,5 MNOK</span></td><td><span class="pill pill-amber">Mulig</span></td><td><span class="pill pill-green">Nei</span></td></tr>
+ <tr><td>Renteeksponering</td><td><span class="pill pill-red">Høy (byggelån 28M)</span></td><td><span class="pill pill-amber">Moderat (banklån 2,2M)</span></td><td><span class="pill pill-green">Eliminert</span></td></tr>
+ <tr><td>Forhåndssalg 5/8 nødvendig</td><td><span class="pill pill-red">Ja</span></td><td><span class="pill pill-amber">Ja (nytt anbud)</span></td><td><span class="pill pill-green">Ikke relevant</span></td></tr>
+ <tr><td>Rentehevings-sensitivitet</td><td><span class="pill pill-red">Svært høy</span></td><td><span class="pill pill-red">Høy</span></td><td><span class="pill pill-green">Ingen</span></td></tr>
+ </tbody>
+ </table>
+ <p style="font-size:11px;color:#73726c;margin-top:6px;">★ Fremover break-even 4 536 000: gjenstående kostnader (32 839 000 inkl. oppdatert finanskostnad) + tomteverdi som EK-stilt kapital (4 950 840) ÷ 8 leiligheter. Skiller seg fra full kalkyle BE (4 941 000) som inkluderer alle historiske kostnader. Markedspris DNB lav (4 650 000) er 114 000 over fremover BE — dvs. prosjektet dekker alle gjenstående kontantutlegg ved markedspris.</p>
+
+ <div class="section-title" style="margin-top:20px;">Aksjesalgscenario — verdsettelse</div>
+ <table class="risk-table">
+ <thead><tr><th>Komponent</th><th>Beløp</th><th>Merknad</th></tr></thead>
+ <tbody>
+ <tr><td>Aksjonærlån tilbakebetales</td><td style="color:#3B6D11"><strong>2 320 000</strong></td><td>Rentefritt, konstatert krav</td></tr>
+ <tr><td>Aksjenes nominelle verdi</td><td>1 (forhandlingsstart)</td><td>EK reelt utradert</td></tr>
+ <tr><td>Merverdi av rammetillatelse</td><td><em>Krever uavh. takst</em></td><td>Potensielt 0,5–1,5 MNOK ekstra</td></tr>
+ <tr><td>Stadion-premie (Glimt)</td><td><em>Ikke priset ennå</em></td><td>Ferdig 2028 — ikke i dag</td></tr>
+ <tr><td><strong>Minimum netto til AG</strong></td><td style="color:#3B6D11"><strong>2 320 000</strong></td><td>Kun aksjonærlån</td></tr>
+ </tbody>
+ </table>
+
+ <div class="conclusion">
+ <h4>Viktig: Ta ikke kr 1 uten takst</h4>
+ <p>Før endelig pris avtales, bør uavhengig takst på tomt med rammetillatelse innhentes. Tomten er bokført til 7,58 MNOK. Faktisk markedsverdi med ny rammetillatelse og kommende stadion-nærhet kan forsvare et tillegg for aksjene ut over symbolsk beløp.</p>
+ </div>
+ </div>
+
+ <!-- BORETTSLAG -->
+ <div id="tab-borettslag" class="panel">
+
+ <div class="conclusion" style="background:#E6F1FB;border-color:#378ADD;margin-bottom:18px;">
+ <h4 style="color:#0C447C;">DNBs borettslagsmodell — korrekt finansieringsstruktur</h4>
+ <p style="color:#0C447C;">DNB Eiendom Nybygg foreslo i juni 2024 at VTV-prosjektet lanseres som borettslag med 60/40-fordeling mellom innskudd og fellesgjeld. Innskuddet (60 %) finansieres ikke kontant — det lånefinansieres fra bank, med unntak av EK-kravet i boliglånsforskriften på <strong>10 % av totalsum</strong> (innskudd + fellesgjeld). Kjøper trenger dermed kun 10 % kontant EK, mens resterende 50 % av totalsum er personlig innskuddslån fra bank. Fellesgjelden (40 %) betjenes løpende via borettslagets månedlige fellesutgifter. Totale månedlige bokostnader er derfor vesentlig høyere enn fellesgjeld alene.</p>
+ </div>
+
+ <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:18px;">
+ <div style="background:#f7f7f5;border-radius:8px;padding:10px 12px;border:0.5px solid #d3d1c7;">
+ <div style="font-size:10px;color:#73726c;margin-bottom:2px;">Alle husholdninger (SSB 2024)</div>
+ <div style="font-size:17px;font-weight:500;">25 782</div>
+ <div style="font-size:10px;color:#73726c;">Bodø kommune</div>
+ </div>
+ <div style="background:#E6F1FB;border-radius:8px;padding:10px 12px;border:0.5px solid #B5D4F4;">
+ <div style="font-size:10px;color:#0C447C;margin-bottom:2px;">Énhusholdninger totalt</div>
+ <div style="font-size:17px;font-weight:500;color:#0C447C;">12 025 <span style="font-size:12px;">46,6 %</span></div>
+ <div style="font-size:10px;color:#0C447C;">Aleneboende + enslig m/barn</div>
+ </div>
+ <div style="background:#EAF3DE;border-radius:8px;padding:10px 12px;border:0.5px solid #C0DD97;">
+ <div style="font-size:10px;color:#27500A;margin-bottom:2px;">Tohusholdninger (par) totalt</div>
+ <div style="font-size:17px;font-weight:500;color:#27500A;">11 137 <span style="font-size:12px;">43,2 %</span></div>
+ <div style="font-size:10px;color:#27500A;">Par u/barn + par m/barn</div>
+ </div>
+ <div style="background:#EAF3DE;border-radius:8px;padding:10px 12px;border:0.5px solid #C0DD97;">
+ <div style="font-size:10px;color:#27500A;margin-bottom:2px;">Par uten barn — primærmål ★</div>
+ <div style="font-size:17px;font-weight:500;color:#3B6D11;">6 423 <span style="font-size:12px;">24,9 %</span></div>
+ <div style="font-size:10px;color:#27500A;">Kjøpekraft over målpris</div>
+ </div>
+ </div>
+
+ <div class="section-title">Finansieringsstruktur — 10 % EK av totalsum (boliglånsforskriften)</div>
+ <div style="overflow-x:auto;">
+ <table class="risk-table compact-table" style="min-width:680px;">
+ <thead>
+ <tr>
+ <th>Prisreferanse</th>
+ <th>Totalsum</th>
+ <th>EK 10 % (kontant)</th>
+ <th>Innskuddslån bank 50 %</th>
+ <th>Fellesgjeld 40 %</th>
+ <th>Innskuddslån/mnd</th>
+ <th>Fellesgjeld/mnd e/fradr.</th>
+ <th>Drift/mnd</th>
+ <th>Total/mnd</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>Markedspris lav (DNB)</td>
+ <td>4 650 000</td>
+ <td>465 000</td>
+ <td>2 325 000</td>
+ <td>1 860 000</td>
+ <td>13 593</td>
+ <td>8 482</td>
+ <td>2 582</td>
+ <td><strong>24 657</strong></td>
+ </tr>
+ <tr style="background:#f7f7f5;">
+ <td>Markedspris høy (DNB)</td>
+ <td>4 975 000</td>
+ <td>497 500</td>
+ <td>2 487 500</td>
+ <td>1 990 000</td>
+ <td>14 543</td>
+ <td>9 076</td>
+ <td>2 582</td>
+ <td><strong>26 201</strong></td>
+ </tr>
+ <tr>
+ <td>Break-even</td>
+ <td>4 941 000</td>
+ <td>494 100</td>
+ <td>2 470 500</td>
+ <td>1 976 000</td>
+ <td>14 443</td>
+ <td>9 011</td>
+ <td>2 582</td>
+ <td><strong>26 036</strong></td>
+ </tr>
+ <tr style="background:#EAF3DE;">
+ <td><strong>Målpris (Ekhorn)</strong></td>
+ <td><strong>5 500 000</strong></td>
+ <td><strong>550 000</strong></td>
+ <td><strong>2 750 000</strong></td>
+ <td><strong>2 200 000</strong></td>
+ <td><strong>16 077</strong></td>
+ <td><strong>10 032</strong></td>
+ <td><strong>2 582</strong></td>
+ <td><strong>28 691</strong></td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ <p style="font-size:11px;color:#73726c;margin-top:6px;">Annuitet 5,0 % rente, 25 år (faktor 0,005846). Innskuddslån: personlig banklån for innskuddet minus EK. Fellesgjeld etter rentefradrag 22 %. Drift per DNB: forsikring 500, fiber 79, snømåking 312, revisjon 55, styrehonorar 99, vedlikehold 213, øvrig 190, forretningsførsel 270, kommunale avgifter 564, renovasjon 300 = 2 582/mnd.</p>
+
+ <div class="section-title" style="margin-top:22px;">Alternativ — 25 % EK kontant (halvparten av innskuddet)</div>
+ <p style="font-size:12px;color:#73726c;margin-bottom:10px;">Kjøper stiller 25 % av totalsum som kontant EK — tilsvarende halvparten av innskuddet (30 % av totalsum). Innskuddslånet fra bank reduseres fra 50 % til 35 % av totalsum, noe som senker månedlig lånekostnad merkbart.</p>
+ <div style="overflow-x:auto;">
+ <table class="risk-table compact-table" style="min-width:680px;">
+ <thead>
+ <tr>
+ <th>Prisreferanse</th>
+ <th>Totalsum</th>
+ <th>EK 25 % (kontant)</th>
+ <th>Innskuddslån bank 35 %</th>
+ <th>Fellesgjeld 40 %</th>
+ <th>Innskuddslån/mnd</th>
+ <th>Fellesgjeld/mnd e/fradr.</th>
+ <th>Drift/mnd</th>
+ <th>Total/mnd</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>Markedspris lav (DNB)</td>
+ <td>4 650 000</td>
+ <td>1 162 500</td>
+ <td>1 627 500</td>
+ <td>1 860 000</td>
+ <td>9 514</td>
+ <td>8 482</td>
+ <td>2 582</td>
+ <td><strong>20 578</strong></td>
+ </tr>
+ <tr style="background:#f7f7f5;">
+ <td>Markedspris høy (DNB)</td>
+ <td>4 975 000</td>
+ <td>1 243 750</td>
+ <td>1 741 250</td>
+ <td>1 990 000</td>
+ <td>10 179</td>
+ <td>9 076</td>
+ <td>2 582</td>
+ <td><strong>21 837</strong></td>
+ </tr>
+ <tr>
+ <td>Break-even</td>
+ <td>4 941 000</td>
+ <td>1 235 250</td>
+ <td>1 729 350</td>
+ <td>1 976 000</td>
+ <td>10 110</td>
+ <td>9 011</td>
+ <td>2 582</td>
+ <td><strong>21 703</strong></td>
+ </tr>
+ <tr style="background:#EAF3DE;">
+ <td><strong>Målpris (Ekhorn)</strong></td>
+ <td><strong>5 500 000</strong></td>
+ <td><strong>1 375 000</strong></td>
+ <td><strong>1 925 000</strong></td>
+ <td><strong>2 200 000</strong></td>
+ <td><strong>11 254</strong></td>
+ <td><strong>10 032</strong></td>
+ <td><strong>2 582</strong></td>
+ <td><strong>23 868</strong></td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ <p style="font-size:11px;color:#73726c;margin-top:6px;">Besparelse vs. 10 % EK: 4 079/mnd (mrk.lav) — 4 823/mnd (målpris). EK-behov øker fra 465 000–550 000 til 1 163 000–1 375 000 kontant.</p>
+
+ <div style="overflow-x:auto;margin-top:14px;">
+ <table class="risk-table compact-table" style="min-width:580px;">
+ <thead>
+ <tr>
+ <th>Aldersgruppe</th>
+ <th>Netto/mnd</th>
+ <th style="white-space:normal;min-width:75px;">25 % EK — mrk.lav<br><span style="font-weight:400;font-size:10px;">20 578</span></th>
+ <th style="white-space:normal;min-width:75px;">25 % EK — mrk.høy<br><span style="font-weight:400;font-size:10px;">21 837</span></th>
+ <th style="white-space:normal;min-width:75px;">25 % EK — break-even<br><span style="font-weight:400;font-size:10px;">21 703</span></th>
+ <th style="white-space:normal;min-width:75px;">25 % EK — målpris<br><span style="font-weight:400;font-size:10px;">23 868</span></th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>Under 30 år</td>
+ <td>32 800</td>
+ <td><span class="pill pill-red">62,7 %</span></td>
+ <td><span class="pill pill-red">66,6 %</span></td>
+ <td><span class="pill pill-red">67,6 %</span></td>
+ <td><span class="pill pill-red">72,8 %</span></td>
+ </tr>
+ <tr style="background:#f7f7f5;">
+ <td>Alle aldre (snitt)</td>
+ <td>40 500</td>
+ <td><span class="pill pill-red">50,8 %</span></td>
+ <td><span class="pill pill-red">53,9 %</span></td>
+ <td><span class="pill pill-red">54,8 %</span></td>
+ <td><span class="pill pill-red">58,9 %</span></td>
+ </tr>
+ <tr>
+ <td>30–54 år</td>
+ <td>41 900</td>
+ <td><span class="pill pill-red">49,1 %</span></td>
+ <td><span class="pill pill-red">52,1 %</span></td>
+ <td><span class="pill pill-red">52,9 %</span></td>
+ <td><span class="pill pill-red">57,0 %</span></td>
+ </tr>
+ <tr style="background:#FAEEDA;">
+ <td><strong>55 år og eldre ★ (median)</strong></td>
+ <td><strong>44 100</strong></td>
+ <td><span class="pill pill-red"><strong>46,7 %</strong></span></td>
+ <td><span class="pill pill-red"><strong>49,5 %</strong></span></td>
+ <td><span class="pill pill-red"><strong>50,3 %</strong></span></td>
+ <td><span class="pill pill-red"><strong>54,1 %</strong></span></td>
+ </tr>
+ <tr style="background:#EAF3DE;">
+ <td><strong>55+ øvre kvartil</strong></td>
+ <td><strong>52 500</strong></td>
+ <td><span class="pill pill-amber"><strong>39,2 %</strong></span></td>
+ <td><span class="pill pill-amber"><strong>41,6 %</strong></span></td>
+ <td><span class="pill pill-amber"><strong>42,2 %</strong></span></td>
+ <td><span class="pill pill-amber"><strong>45,5 %</strong></span></td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ <div class="conclusion warn" style="margin-top:12px;">
+ <h4>25 % EK bedrer situasjonen — men er fortsatt ikke bærekraftig som løpende kostnad</h4>
+ <p>Å stille 25 % EK kontant reduserer månedlig bokostnad med 4 000–4 800 sammenlignet med 10 % EK, og senker andelen for 55+ øvre kvartil til 39–46 % av netto. Det er en klar forbedring, men fortsatt godt over anbefalt grense på 30 %. Eneste scenario som gir komfortabel betjeningsevne er fortsatt rekkefølgelånet — der eksisterende bolig er solgt og innskuddslånet nedbetalt ved overtakelse. 25 % EK-alternativet er mest relevant for kjøpere med sterk likviditet som ønsker å redusere løpende lånekostnad uten å realisere hele boligverdien på forhånd.</p>
+ </div>
+
+ <div class="section-title" style="margin-top:22px;">Alternativ — 50 % EK kontant</div>
+ <p style="font-size:12px;color:#73726c;margin-bottom:10px;">Kjøper stiller halvparten av totalsum som kontant EK. Innskuddslånet reduseres til 10 % av totalsum — kun det overskytende av innskuddet utover EK.</p>
+ <div style="overflow-x:auto;">
+ <table class="risk-table compact-table" style="min-width:680px;">
+ <thead>
+ <tr>
+ <th>Prisreferanse</th>
+ <th>Totalsum</th>
+ <th>EK 50 % (kontant)</th>
+ <th>Innskuddslån bank 10 %</th>
+ <th>Fellesgjeld 40 %</th>
+ <th>Innskuddslån/mnd</th>
+ <th>Fellesgjeld/mnd e/fradr.</th>
+ <th>Drift/mnd</th>
+ <th>Total/mnd</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>Markedspris lav (DNB)</td>
+ <td>4 650 000</td>
+ <td>2 325 000</td>
+ <td>465 000</td>
+ <td>1 860 000</td>
+ <td>2 718</td>
+ <td>8 482</td>
+ <td>2 582</td>
+ <td><strong>13 782</strong></td>
+ </tr>
+ <tr style="background:#f7f7f5;">
+ <td>Markedspris høy (DNB)</td>
+ <td>4 975 000</td>
+ <td>2 487 500</td>
+ <td>497 500</td>
+ <td>1 990 000</td>
+ <td>2 908</td>
+ <td>9 076</td>
+ <td>2 582</td>
+ <td><strong>14 566</strong></td>
+ </tr>
+ <tr>
+ <td>Break-even</td>
+ <td>4 941 000</td>
+ <td>2 470 500</td>
+ <td>494 100</td>
+ <td>1 976 000</td>
+ <td>2 889</td>
+ <td>9 011</td>
+ <td>2 582</td>
+ <td><strong>14 482</strong></td>
+ </tr>
+ <tr style="background:#EAF3DE;">
+ <td><strong>Målpris (Ekhorn)</strong></td>
+ <td><strong>5 500 000</strong></td>
+ <td><strong>2 750 000</strong></td>
+ <td><strong>550 000</strong></td>
+ <td><strong>2 200 000</strong></td>
+ <td><strong>3 215</strong></td>
+ <td><strong>10 032</strong></td>
+ <td><strong>2 582</strong></td>
+ <td><strong>15 829</strong></td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ <p style="font-size:11px;color:#73726c;margin-top:6px;">Besparelse vs. 25 % EK: 6 749/mnd (mrk.lav) — 8 039/mnd (målpris). EK-behov: 2 325 000–2 750 000 kontant.</p>
+
+ <div style="overflow-x:auto;margin-top:12px;">
+ <table class="risk-table compact-table" style="min-width:580px;">
+ <thead>
+ <tr>
+ <th>Husholdning</th>
+ <th>Netto/mnd</th>
+ <th style="white-space:normal;min-width:75px;">50 % EK — mrk.lav<br><span style="font-weight:400;font-size:10px;">13 782</span></th>
+ <th style="white-space:normal;min-width:75px;">50 % EK — mrk.høy<br><span style="font-weight:400;font-size:10px;">14 566</span></th>
+ <th style="white-space:normal;min-width:75px;">50 % EK — break-even<br><span style="font-weight:400;font-size:10px;">14 482</span></th>
+ <th style="white-space:normal;min-width:75px;">50 % EK — målpris<br><span style="font-weight:400;font-size:10px;">15 829</span></th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr><td>Aleneboende</td><td>34 092</td>
+ <td><span class="pill pill-amber">40,4 %</span></td><td><span class="pill pill-amber">42,7 %</span></td><td><span class="pill pill-amber">43,3 %</span></td><td><span class="pill pill-red">46,4 %</span></td></tr>
+ <tr style="background:#f7f7f5;"><td>55+ median</td><td>44 100</td>
+ <td><span class="pill pill-amber">31,3 %</span></td><td><span class="pill pill-amber">33,0 %</span></td><td><span class="pill pill-amber">33,5 %</span></td><td><span class="pill pill-red">35,9 %</span></td></tr>
+ <tr><td><strong>55+ øvre kvartil</strong></td><td><strong>52 500</strong></td>
+ <td><span class="pill pill-green"><strong>26,3 %</strong></span></td><td><span class="pill pill-green"><strong>27,8 %</strong></span></td><td><span class="pill pill-green"><strong>28,2 %</strong></span></td><td><span class="pill pill-amber"><strong>30,2 %</strong></span></td></tr>
+ <tr style="background:#EAF3DE;"><td><strong>Par uten barn ★</strong></td><td><strong>73 158</strong></td>
+ <td><span class="pill pill-green"><strong>18,8 %</strong></span></td><td><span class="pill pill-green"><strong>19,9 %</strong></span></td><td><span class="pill pill-green"><strong>20,2 %</strong></span></td><td><span class="pill pill-green"><strong>21,6 %</strong></span></td></tr>
+ <tr style="background:#EAF3DE;"><td><strong>Par med barn</strong></td><td><strong>97 283</strong></td>
+ <td><span class="pill pill-green"><strong>14,2 %</strong></span></td><td><span class="pill pill-green"><strong>15,0 %</strong></span></td><td><span class="pill pill-green"><strong>15,2 %</strong></span></td><td><span class="pill pill-green"><strong>16,3 %</strong></span></td></tr>
+ </tbody>
+ </table>
+ </div>
+
+ <div class="section-title" style="margin-top:22px;">Alternativ — 60 % EK kontant (hele innskuddet)</div>
+ <p style="font-size:12px;color:#73726c;margin-bottom:10px;">Kjøper dekker hele innskuddet (60 % av totalsum) med kontant EK. Intet innskuddslån — kun løpende fellesgjeld og drift. Identisk med rekkefølgelån-scenarioet der boligsalget er gjennomført.</p>
+ <div style="overflow-x:auto;">
+ <table class="risk-table compact-table" style="min-width:680px;">
+ <thead>
+ <tr>
+ <th>Prisreferanse</th>
+ <th>Totalsum</th>
+ <th>EK 60 % (kontant)</th>
+ <th>Innskuddslån</th>
+ <th>Fellesgjeld 40 %</th>
+ <th>Innskuddslån/mnd</th>
+ <th>Fellesgjeld/mnd e/fradr.</th>
+ <th>Drift/mnd</th>
+ <th>Total/mnd</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>Markedspris lav (DNB)</td>
+ <td>4 650 000</td>
+ <td>2 790 000</td>
+ <td>0</td>
+ <td>1 860 000</td>
+ <td>0</td>
+ <td>8 482</td>
+ <td>2 582</td>
+ <td><strong>11 064</strong></td>
+ </tr>
+ <tr style="background:#f7f7f5;">
+ <td>Markedspris høy (DNB)</td>
+ <td>4 975 000</td>
+ <td>2 985 000</td>
+ <td>0</td>
+ <td>1 990 000</td>
+ <td>0</td>
+ <td>9 076</td>
+ <td>2 582</td>
+ <td><strong>11 658</strong></td>
+ </tr>
+ <tr>
+ <td>Break-even</td>
+ <td>4 941 000</td>
+ <td>2 965 000</td>
+ <td>0</td>
+ <td>1 976 000</td>
+ <td>0</td>
+ <td>9 011</td>
+ <td>2 582</td>
+ <td><strong>11 593</strong></td>
+ </tr>
+ <tr style="background:#EAF3DE;">
+ <td><strong>Målpris (Ekhorn)</strong></td>
+ <td><strong>5 500 000</strong></td>
+ <td><strong>3 300 000</strong></td>
+ <td><strong>0</strong></td>
+ <td><strong>2 200 000</strong></td>
+ <td><strong>0</strong></td>
+ <td><strong>10 032</strong></td>
+ <td><strong>2 582</strong></td>
+ <td><strong>12 614</strong></td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ <p style="font-size:11px;color:#73726c;margin-top:6px;">EK-behov: 2 790 000–3 300 000 kontant. Ingen løpende innskuddslån — kun fellesgjeld og drift.</p>
+
+ <div style="overflow-x:auto;margin-top:12px;">
+ <table class="risk-table compact-table" style="min-width:580px;">
+ <thead>
+ <tr>
+ <th>Husholdning</th>
+ <th>Netto/mnd</th>
+ <th style="white-space:normal;min-width:75px;">60 % EK — mrk.lav<br><span style="font-weight:400;font-size:10px;">11 064</span></th>
+ <th style="white-space:normal;min-width:75px;">60 % EK — mrk.høy<br><span style="font-weight:400;font-size:10px;">11 658</span></th>
+ <th style="white-space:normal;min-width:75px;">60 % EK — break-even<br><span style="font-weight:400;font-size:10px;">11 593</span></th>
+ <th style="white-space:normal;min-width:75px;">60 % EK — målpris<br><span style="font-weight:400;font-size:10px;">12 614</span></th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr><td>Aleneboende</td><td>34 092</td>
+ <td><span class="pill pill-amber">32,5 %</span></td><td><span class="pill pill-amber">34,2 %</span></td><td><span class="pill pill-amber">34,7 %</span></td><td><span class="pill pill-amber">37,0 %</span></td></tr>
+ <tr style="background:#f7f7f5;"><td><strong>55+ median ★</strong></td><td><strong>44 100</strong></td>
+ <td><span class="pill pill-green"><strong>25,1 %</strong></span></td><td><span class="pill pill-green"><strong>26,4 %</strong></span></td><td><span class="pill pill-green"><strong>26,8 %</strong></span></td><td><span class="pill pill-green"><strong>28,6 %</strong></span></td></tr>
+ <tr><td><strong>55+ øvre kvartil</strong></td><td><strong>52 500</strong></td>
+ <td><span class="pill pill-green"><strong>21,1 %</strong></span></td><td><span class="pill pill-green"><strong>22,2 %</strong></span></td><td><span class="pill pill-green"><strong>22,5 %</strong></span></td><td><span class="pill pill-green"><strong>24,0 %</strong></span></td></tr>
+ <tr style="background:#EAF3DE;"><td><strong>Par uten barn ★</strong></td><td><strong>73 158</strong></td>
+ <td><span class="pill pill-green"><strong>15,1 %</strong></span></td><td><span class="pill pill-green"><strong>15,9 %</strong></span></td><td><span class="pill pill-green"><strong>16,2 %</strong></span></td><td><span class="pill pill-green"><strong>17,2 %</strong></span></td></tr>
+ <tr style="background:#EAF3DE;"><td><strong>Par med barn</strong></td><td><strong>97 283</strong></td>
+ <td><span class="pill pill-green"><strong>11,4 %</strong></span></td><td><span class="pill pill-green"><strong>12,0 %</strong></span></td><td><span class="pill pill-green"><strong>12,2 %</strong></span></td><td><span class="pill pill-green"><strong>13,0 %</strong></span></td></tr>
+ </tbody>
+ </table>
+ </div>
+
+ <div class="conclusion" style="margin-top:12px;">
+ <h4>Oppsummering EK-scenarier — terskler for komfortabel betjeningsevne</h4>
+ <p>50 % EK er det første scenarioet der 55+ øvre kvartil oppnår komfortabel betjeningsevne (26–28 %) ved markedspris, og par uten barn er komfortabelt ved alle prisreferanser. 60 % EK (hele innskuddet) løfter 55+ median til 25–29 % — komfortabelt ved alle prisreferanser. For énhusholdninger er 60 % EK det laveste EK-nivået som gir en bærekraftig løpende bokostnad. Aleneboende er ikke i komfortsonen ved noe EK-nivå under 60 %, og er heller ikke i primary-målgruppen for prosjektet. Nøkkelconclusjonen er: prosjektet har to veier til salg — enten par uten barn med minst 25 % EK, eller 55+ énhusholdning med minst 50 % EK (tilsvarende at eksisterende bolig er delvis frigjort).</p>
+ </div>
+
+ <div style="overflow-x:auto;">
+ <div class="section-title" style="margin-top:22px;">Netto betjeningsevne — 10 % EK (minstekrav boliglånsforskriften)</div>
+ <p style="font-size:12px;color:#73726c;margin-bottom:10px;">Netto lønn/inntekt etter norsk skatt 2025. Andel = total bokostnad/mnd ÷ netto/mnd. Under 30 %: komfortabelt · 30–35 %: stramt · over 35 %: sårbart.</p>
+ <table class="risk-table compact-table" style="min-width:660px;">
+ <thead>
+ <tr>
+ <th>Aldersgruppe</th>
+ <th>Brutto/mnd</th>
+ <th>Netto/mnd</th>
+ <th style="white-space:normal;min-width:75px;">Mrk.pris lav<br><span style="font-weight:400;font-size:10px;">24 657</span></th>
+ <th style="white-space:normal;min-width:75px;">Mrk.pris høy<br><span style="font-weight:400;font-size:10px;">26 201</span></th>
+ <th style="white-space:normal;min-width:75px;">Break-even<br><span style="font-weight:400;font-size:10px;">26 036</span></th>
+ <th style="white-space:normal;min-width:75px;">Målpris<br><span style="font-weight:400;font-size:10px;">28 691</span></th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>Under 30 år</td>
+ <td>45 450</td>
+ <td>32 800</td>
+ <td><span class="pill pill-red">75,2 %</span></td>
+ <td><span class="pill pill-red">79,9 %</span></td>
+ <td><span class="pill pill-red">81,1 %</span></td>
+ <td><span class="pill pill-red">87,5 %</span></td>
+ </tr>
+ <tr style="background:#f7f7f5;">
+ <td>Alle aldre (snitt)</td>
+ <td>56 620</td>
+ <td>40 500</td>
+ <td><span class="pill pill-red">60,9 %</span></td>
+ <td><span class="pill pill-red">64,7 %</span></td>
+ <td><span class="pill pill-red">65,7 %</span></td>
+ <td><span class="pill pill-red">70,8 %</span></td>
+ </tr>
+ <tr>
+ <td>30–54 år</td>
+ <td>58 580</td>
+ <td>41 900</td>
+ <td><span class="pill pill-red">58,8 %</span></td>
+ <td><span class="pill pill-red">62,5 %</span></td>
+ <td><span class="pill pill-red">63,5 %</span></td>
+ <td><span class="pill pill-red">68,5 %</span></td>
+ </tr>
+ <tr style="background:#FCEBEB;">
+ <td><strong>55 år og eldre ★ (median)</strong></td>
+ <td><strong>61 880</strong></td>
+ <td><strong>44 100</strong></td>
+ <td><span class="pill pill-red"><strong>55,9 %</strong></span></td>
+ <td><span class="pill pill-red"><strong>59,4 %</strong></span></td>
+ <td><span class="pill pill-red"><strong>60,3 %</strong></span></td>
+ <td><span class="pill pill-red"><strong>65,1 %</strong></span></td>
+ </tr>
+ <tr style="background:#FAEEDA;">
+ <td><strong>55+ øvre kvartil</strong></td>
+ <td><strong>75 000</strong></td>
+ <td><strong>52 500</strong></td>
+ <td><span class="pill pill-red"><strong>47,0 %</strong></span></td>
+ <td><span class="pill pill-red"><strong>49,9 %</strong></span></td>
+ <td><span class="pill pill-red"><strong>50,7 %</strong></span></td>
+ <td><span class="pill pill-red"><strong>54,7 %</strong></span></td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ <p style="font-size:11px;color:#73726c;margin-top:6px;">Skattesats: ~28 % for 45 450, ~28,5 % for 56 620–58 580, ~28,7 % for 61 880, ~30 % for 75 000 (SSB-basert, inkl. trygdeavgift, Bodø 2025).</p>
+
+ <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:16px;">
+ <div style="background:#FCEBEB;border-radius:8px;padding:12px 14px;border:1px solid #F09595;">
+ <div style="font-size:11px;font-weight:500;color:#791F1F;margin-bottom:3px;">Alle grupper — alle prisnivåer</div>
+ <div style="font-size:16px;font-weight:500;color:#A32D2D;">47–88 % av netto</div>
+ <div style="font-size:11px;color:#791F1F;margin-top:2px;">Langt over anbefalt grense for alle</div>
+ </div>
+ <div style="background:#FAEEDA;border-radius:8px;padding:12px 14px;border:1px solid #FAC775;">
+ <div style="font-size:11px;font-weight:500;color:#633806;margin-bottom:3px;">55+ øvre kvartil — lavest belastning</div>
+ <div style="font-size:16px;font-weight:500;color:#BA7517;">47–55 % av netto</div>
+ <div style="font-size:11px;color:#633806;margin-top:2px;">Fortsatt svært høyt — forutsetter dobbel inntekt</div>
+ </div>
+ <div style="background:#EAF3DE;border-radius:8px;padding:12px 14px;border:1px solid #C0DD97;">
+ <div style="font-size:11px;font-weight:500;color:#27500A;margin-bottom:3px;">Løsning: rekkefølgelån</div>
+ <div style="font-size:16px;font-weight:500;color:#3B6D11;">Selg bolig først</div>
+ <div style="font-size:11px;color:#27500A;margin-top:2px;">Nedbetaling av innskuddslån ved boligsalg eliminerer lånedelen</div>
+ </div>
+ </div>
+
+ <div class="section-title" style="margin-top:22px;">Borettslag vs. selveier — og rekkefølgelån-scenarioet</div>
+ <table class="risk-table compact-table">
+ <thead><tr><th>Struktur / scenario</th><th>Prisreferanse</th><th>EK kontant</th><th>Mnd.kostnad</th><th>Andel netto (55+ median)</th><th>Vurdering</th></tr></thead>
+ <tbody>
+ <tr>
+ <td>Selveier</td>
+ <td>Markedspris 4 975 000</td>
+ <td>498 000 (10 %)</td>
+ <td>25 100 (lån 4,48M, 5 %)</td>
+ <td style="color:#A32D2D">56,9 %</td>
+ <td><span class="pill pill-red">Ikke bærekraftig</span></td>
+ </tr>
+ <tr style="background:#f7f7f5;">
+ <td>Borettslag m/innskuddslån</td>
+ <td>Markedspris 4 975 000</td>
+ <td>498 000 (10 %)</td>
+ <td>26 201</td>
+ <td style="color:#A32D2D">59,4 %</td>
+ <td><span class="pill pill-red">Ikke bærekraftig</span></td>
+ </tr>
+ <tr>
+ <td>Borettslag m/innskuddslån</td>
+ <td>Målpris 5 500 000</td>
+ <td>550 000 (10 %)</td>
+ <td>28 691</td>
+ <td style="color:#A32D2D">65,1 %</td>
+ <td><span class="pill pill-red">Ikke bærekraftig</span></td>
+ </tr>
+ <tr style="background:#EAF3DE;">
+ <td><strong>Borettslag — rekkefølge­lån ★</strong></td>
+ <td><strong>Målpris 5 500 000</strong></td>
+ <td><strong>3 300 000 (fra boligsalg)</strong></td>
+ <td><strong>12 614 (kun FG + drift)</strong></td>
+ <td style="color:#3B6D11"><strong>28,6 %</strong></td>
+ <td><span class="pill pill-green"><strong>Komfortabelt</strong></span></td>
+ </tr>
+ </tbody>
+ </table>
+
+ <div class="conclusion danger" style="margin-top:14px;">
+ <h4>Borettslagsmodellen fungerer kun med rekkefølgelån — ikke med løpende innskuddslån</h4>
+ <p>Med korrekt finansieringsstruktur (innskuddslån fra bank + fellesgjeld + drift) er månedlig bokostnad 24 657–28 691 ved alle prisreferanser — 55–88 % av netto lønn for samtlige aldersgrupper. Dette er ikke bærekraftig som løpende finansiering. Borettslagsmodellen er kun attraktiv i ett scenario: kjøper selger eksisterende bolig og bruker frigjort EK til å betale ned innskuddslånet ved overtakelse (rekkefølgelån). Da faller månedlig kostnad til 12 614 ved målpris — 28,6 % av netto for 55+ median. Dette stiller krav om at kjøper kan selge og kjøpe simultant, noe som er gjennomførbart men krever koordinering og bro-finansiering i overgangsperioden.</p>
+ </div>
+
+ <div class="section-title" style="margin-top:24px;">Tohusholdninger — bokostnader som andel av netto husholdningsinntekt (SSB 06944, Bodø 2024)</div>
+ <p style="font-size:12px;color:#73726c;margin-bottom:10px;">Netto husholdningsinntekt etter skatt per SSB. Andel = total bokostnad/mnd ÷ netto husholdningsinntekt/mnd. Par uten barn er den relevante tohusholdningskjøperen for VTVs 63–67 m².</p>
+
+ <div style="overflow-x:auto;">
+ <table class="risk-table compact-table" style="min-width:700px;">
+ <thead>
+ <tr>
+ <th>Husholdningstype</th>
+ <th>Netto hushold./mnd</th>
+ <th style="white-space:normal;min-width:75px;">10 % EK — mrk.lav<br><span style="font-weight:400;font-size:10px;">24 657</span></th>
+ <th style="white-space:normal;min-width:75px;">10 % EK — målpris<br><span style="font-weight:400;font-size:10px;">28 691</span></th>
+ <th style="white-space:normal;min-width:75px;">25 % EK — mrk.lav<br><span style="font-weight:400;font-size:10px;">20 578</span></th>
+ <th style="white-space:normal;min-width:75px;">25 % EK — målpris<br><span style="font-weight:400;font-size:10px;">23 868</span></th>
+ <th style="white-space:normal;min-width:75px;">Rekkefølgelån<br><span style="font-weight:400;font-size:10px;">12 614 (kun FG+drift)</span></th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>Aleneboende</td>
+ <td>34 092</td>
+ <td><span class="pill pill-red">72,3 %</span></td>
+ <td><span class="pill pill-red">84,2 %</span></td>
+ <td><span class="pill pill-red">60,4 %</span></td>
+ <td><span class="pill pill-red">70,0 %</span></td>
+ <td><span class="pill pill-amber">37,0 %</span></td>
+ </tr>
+ <tr style="background:#f7f7f5;">
+ <td>Enslig mor/far m/barn</td>
+ <td>49 217</td>
+ <td><span class="pill pill-red">50,1 %</span></td>
+ <td><span class="pill pill-red">58,3 %</span></td>
+ <td><span class="pill pill-red">41,8 %</span></td>
+ <td><span class="pill pill-amber">48,5 %</span></td>
+ <td><span class="pill pill-green">25,6 %</span></td>
+ </tr>
+ <tr style="background:#EAF3DE;">
+ <td><strong>Par uten barn ★</strong></td>
+ <td><strong>73 158</strong></td>
+ <td><span class="pill pill-amber"><strong>33,7 %</strong></span></td>
+ <td><span class="pill pill-amber"><strong>39,2 %</strong></span></td>
+ <td><span class="pill pill-green"><strong>28,1 %</strong></span></td>
+ <td><span class="pill pill-amber"><strong>32,6 %</strong></span></td>
+ <td><span class="pill pill-green"><strong>17,2 %</strong></span></td>
+ </tr>
+ <tr style="background:#EAF3DE;">
+ <td><strong>Par med barn 0–17 år</strong></td>
+ <td><strong>97 283</strong></td>
+ <td><span class="pill pill-green"><strong>25,3 %</strong></span></td>
+ <td><span class="pill pill-green"><strong>29,5 %</strong></span></td>
+ <td><span class="pill pill-green"><strong>21,2 %</strong></span></td>
+ <td><span class="pill pill-green"><strong>24,5 %</strong></span></td>
+ <td><span class="pill pill-green"><strong>13,0 %</strong></span></td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ <p style="font-size:11px;color:#73726c;margin-top:6px;">Kilde: SSB tabell 06944, Bodø 2024. Netto husholdningsinntekt = inntekt etter skatt ÷ 12. Par med barn etterspør typisk større areal enn VTVs 63–67 m² — kjøpekraften er reell men segmentet er ikke primærmålgruppe.</p>
+
+ <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px;">
+ <div style="background:#FCEBEB;border-radius:8px;padding:12px 14px;border:1px solid #F09595;">
+ <div style="font-size:11px;font-weight:500;color:#791F1F;margin-bottom:3px;">Énhusholdninger — alle scenarier</div>
+ <div style="font-size:16px;font-weight:500;color:#A32D2D;">37–88 % av netto</div>
+ <div style="font-size:11px;color:#791F1F;margin-top:2px;">Kun komfortabelt ved rekkefølgelån (55+)</div>
+ </div>
+ <div style="background:#EAF3DE;border-radius:8px;padding:12px 14px;border:1px solid #C0DD97;">
+ <div style="font-size:11px;font-weight:500;color:#27500A;margin-bottom:3px;">Par uten barn — 25 % EK</div>
+ <div style="font-size:16px;font-weight:500;color:#3B6D11;">28,1 % (mrk.lav)</div>
+ <div style="font-size:11px;color:#27500A;margin-top:2px;">Første scenario som er komfortabelt ved løpende lån</div>
+ </div>
+ <div style="background:#EAF3DE;border-radius:8px;padding:12px 14px;border:1px solid #C0DD97;">
+ <div style="font-size:11px;font-weight:500;color:#27500A;margin-bottom:3px;">Par med barn — alle scenarier</div>
+ <div style="font-size:16px;font-weight:500;color:#3B6D11;">13–30 % av netto</div>
+ <div style="font-size:11px;color:#27500A;margin-top:2px;">Komfortabelt ved alle prisreferanser og EK-nivåer</div>
+ </div>
+ </div>
+
+ <div class="conclusion" style="margin-top:14px;">
+ <h4>Par uten barn er den kritiske terskelen — komfortabelt kun ved 25 % EK eller rekkefølgelån</h4>
+ <p>For tohusholdninger snur bildet markant: par uten barn (6 423 husholdninger i Bodø) er første gruppe som oppnår komfortabel betjeningsevne ved løpende finansiering — men kun ved 25 % EK og markedspris lav (28,1 %). Ved målpris og 10 % EK er andelen 39,2 % — stramt. Rekkefølgelån gir 17,2 %, som er svært komfortabelt. Par med barn er komfortabelt ved samtlige scenarier, men er ikke primærmålgruppen for VTVs leilighetsformat. Den samlede konklusjonen er at prosjektets salgbarhet hviler på to distinkte grupper: 55+ énhusholdninger med nedbetalt bolig (rekkefølgelån-kjøpere) og par uten barn med god husholdningsinntekt og minst 25 % EK tilgjengelig.</p>
+ </div>
+
+ </div>
+
+ <!-- RISIKOMATRISE -->
+ <div id="tab-risikomatrise" class="panel">
+ <div class="section-title">Risikofaktorer etter renteheving</div>
+ <table class="risk-table">
+ <thead><tr><th>Risiko</th><th>Sannsynlighet</th><th>Konsekvens</th><th>Eksponering AG</th></tr></thead>
+ <tbody>
+ <tr>
+ <td><strong>Markedspris under break-even og målpris</strong><br><span style="font-size:11px;color:#73726c">DNB indikerte 4,65–4,97M. Break-even er 4,94M, målpris 5,50M. DNB høy (4,97M) er marginalt over break-even. 55+ median er nær break-even (−28 000). Renteheving svekker kjøpekraft ytterligere.</span></td>
+ <td><span class="pill pill-red">Svært høy</span></td>
+ <td><span class="pill pill-red">Kritisk</span></td>
+ <td>−0,5 til −2,0 MNOK/leil.</td>
+ </tr>
+ <tr>
+ <td><strong>Forhåndssalg ikke oppnådd</strong><br><span style="font-size:11px;color:#73726c">Bank krever 5/8. 500+ boliger til salgs i Bodø. 55+-segmentet kjøpesterkt men kjøper langsommere.</span></td>
+ <td><span class="pill pill-red">Høy</span></td>
+ <td><span class="pill pill-red">Kritisk</span></td>
+ <td>Byggestart umulig</td>
+ </tr>
+ <tr>
+ <td><strong>Renteheving 0,5 % i 2026/27</strong><br><span style="font-size:11px;color:#73726c">Norges Bank ny rentebane. Kjøpekraft under break-even. Byggelånskostnad øker med 76 000 (12 mnd byggetid, jevnt uttrekk).</span></td>
+ <td><span class="pill pill-red">Høy</span></td>
+ <td><span class="pill pill-amber">Alvorlig</span></td>
+ <td>+76 000 finanskost</td>
+ </tr>
+ <tr>
+ <td><strong>Kostnadsvekst entreprise</strong><br><span style="font-size:11px;color:#73726c">Anbudsprisen (45 900/BRA) er 20 % under bransjenorm.</span></td>
+ <td><span class="pill pill-amber">Moderat</span></td>
+ <td><span class="pill pill-amber">Alvorlig</span></td>
+ <td>1,7–4,7 MNOK (AG: 0,7–1,9M)</td>
+ </tr>
+ <tr>
+ <td><strong>Kapitalkrav: ny EK til AG</strong><br><span style="font-size:11px;color:#73726c">30 % egenandel byggelån. AG-andel ~1,5 MNOK.</span></td>
+ <td><span class="pill pill-red">Sikkert ved bygg</span></td>
+ <td><span class="pill pill-amber">Alvorlig</span></td>
+ <td>−1,5 MNOK kontant</td>
+ </tr>
+ <tr>
+ <td><strong>Uavhengig tomtetakst ikke innhentet</strong><br><span style="font-size:11px;color:#73726c">Bokført 7,58 MNOK. Markedsverdi ukjent.</span></td>
+ <td><span class="pill pill-amber">Moderat risiko</span></td>
+ <td><span class="pill pill-amber">Moderat</span></td>
+ <td>Påvirker exit-pris</td>
+ </tr>
+ <tr>
+ <td><strong>Habilitetseksponering</strong><br><span style="font-size:11px;color:#73726c">Styreleder (60 %-eier) i konsern med fakturakrav mot SP.</span></td>
+ <td><span class="pill pill-amber">Moderat</span></td>
+ <td><span class="pill pill-amber">Moderat</span></td>
+ <td>Transparent risiko</td>
+ </tr>
+ <tr>
+ <td><strong>Realverditap ved passivitet</strong><br><span style="font-size:11px;color:#73726c">KPI 4 %/år fremover. Innskutt EK taper kjøpekraft.</span></td>
+ <td><span class="pill pill-blue">Lav/sikker</span></td>
+ <td><span class="pill pill-blue">Løpende</span></td>
+ <td>~45 000/år (EK-andel)</td>
+ </tr>
+ <tr>
+ <td><strong>Geopolitisk/inflasjonspresse</strong><br><span style="font-size:11px;color:#73726c">Importprisvekst, usikker internasjonal situasjon. Renter holder seg høye lenger.</span></td>
+ <td><span class="pill pill-red">Høy</span></td>
+ <td><span class="pill pill-amber">Alvorlig</span></td>
+ <td>Forverrer alle scenarier</td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+
+ <!-- KONKLUSJON -->
+ <div id="tab-konklusjon" class="panel">
+ <div class="section-title">Samlet vurdering — Areal-Gruppens ståsted</div>
+ <div class="timeline">
+ <div class="tl-item">
+ <div class="tl-dot red"></div>
+ <div class="tl-title">Norges Banks rentemøte — torsdag 26. mars 2026</div>
+ <div class="tl-body">Ny rentebane offentliggjøres. Legger til grunn at styringsrenten holdes på 4,0 % eller heves 0,25–0,5 %. Boliglånsrente 5,0–5,5 % i hele VTV-horisonten. Kjøpekraft til nedsizersegmentet svekkes ytterligere.</div>
+ </div>
+ <div class="tl-item">
+ <div class="tl-dot amber"></div>
+ <div class="tl-title">Prisgap mot både break-even og målpris</div>
+ <div class="tl-body">DNB-markedsindikasjon 4,65–4,97M. Break-even er 4,94M (DNB høy er +35 000 over break-even, DNB lav er −291 000 under). Målpris 5,50M krever +525–850 000 per leilighet over DNB-nivå. Ingen median-aldersgruppe i Bodø har tilstrekkelig kjøpekraft til break-even med standard EK. Renteheving gjør gapet enda større.</div>
+ </div>
+ <div class="tl-item">
+ <div class="tl-dot red"></div>
+ <div class="tl-title">Alt A (bygg) — ikke rasjonelt for AG med dagens informasjon</div>
+ <div class="tl-body">Krever ny EK på 1,5 MNOK, forhåndssalg til 5/8 til en pris markedet ikke har bekreftet, i det svakeste nyboligmarkedet på 15 år, i en periode med potensielt stigende renter. Asymmetrisk risiko: AG bærer 40 % av tap, men uten operasjonell kontroll.</div>
+ </div>
+ <div class="tl-item">
+ <div class="tl-dot amber"></div>
+ <div class="tl-title">Alt B (vent) — forsvarlig, men forverres av ny rentebane</div>
+ <div class="tl-body">Ventekostnad 200 000/år. Stadionpremie fra Glimt først relevant fra 2028. Men dersom renten holder seg høy i 2–3 år, er ikke markedet bedre om 2 år enn i dag — og anbudet utløper.</div>
+ </div>
+ <div class="tl-item">
+ <div class="tl-dot green"></div>
+ <div class="tl-title">Alt C (selg aksjer + krev lån) — anbefales som utgangspunkt</div>
+ <div class="tl-body">Sikker og umiddelbar utbetaling av 2,32 MNOK aksjonærlån. Eliminerer renteeksponering, EK-krav og avhengighet av forhåndssalg. Tap på innskutt EK (1,12 MNOK) er reelt, men allerede akkumulert og vil ikke reverseres i et svakt rentemarked.</div>
+ </div>
+ <div class="tl-item">
+ <div class="tl-dot blue"></div>
+ <div class="tl-title">Forutsetning: uavhengig tomtetakst før prisforhandling</div>
+ <div class="tl-body">Symbolsk pris kr 1 for aksjer bør ikke aksepteres uten takst. Rammetillatelse + Glimt-stadion (ferdig 2028) kan gi merverdi. Takst avklarer om aksjeoppgjøret bør være høyere enn kr 1.</div>
+ </div>
+ </div>
+
+ <div class="section-title" style="margin-top:22px;">Styrets avveining</div>
+ <div class="two-col">
+ <div>
+ <div style="font-size:13px;font-weight:500;color:#3B6D11;margin-bottom:8px;">For salg av aksjer (Alt C)</div>
+ <div style="font-size:12px;line-height:1.7;color:#73726c;">
+ ✓ Sikker innbetaling 2,32 MNOK nå<br>
+ ✓ Null ny kapital nødvendig<br>
+ ✓ Nullstiller all renteeksponering<br>
+ ✓ Frigjør ledelseskapasitet<br>
+ ✓ Unngår ny EK-innskudd på 1,5 MNOK<br>
+ ✓ Geopolitisk/rentesikkerhet
+ </div>
+ </div>
+ <div>
+ <div style="font-size:13px;font-weight:500;color:#A32D2D;margin-bottom:8px;">Mot salg av aksjer</div>
+ <div style="font-size:12px;line-height:1.7;color:#73726c;">
+ ✗ Reelt tap på innskutt EK (1,12 MNOK)<br>
+ ✗ Misser potensiell oppside ved målpris<br>
+ ✗ Riktig segment, god beliggenhet<br>
+ ✗ Stadion-effekt ikke priset inn ennå<br>
+ ✗ Selger billig til LinkPro som kan tjene godt
+ </div>
+ </div>
+ </div>
+
+ <div class="conclusion" style="margin-top:18px;">
+ <h4>Samlet anbefaling til styret i Areal-Gruppen</h4>
+ <p>Gitt at Norges Bank hever/opprettholder rentebanen og kjøpekraften til nedsizersegmentet svekkes ytterligere, er det ikke rasjonelt for Areal-Gruppen å øke eksponeringen i VTV-prosjektet. Markedspris (DNB 4,65–4,97M): lav indikasjon er 291 000 under ny break-even (4,94M), høy indikasjon er 35 000 over og langt under målpris (5,50M) — og ingen median-aldersgruppe i Bodø har tilstrekkelig kjøpekraft til å dekke break-even med standard EK. Finansiell differanse mellom å selge aksjer nå (krev 2,32 MNOK) og best-case ved målpris er 0,53 MNOK (AG-andel 1,79 MNOK) — mot den risikoen og kapitalbindingen som kreves. Anbefalt linje: krev tilbakebetaling av aksjonærlån 2,32 MNOK som absolutt minimumsvilkår, innhent uavhengig takst på tomt, og forhandle aksjeoppgjør basert på taksten. La LinkPro ta den risikoen de tilsynelatende ønsker.</p>
+ </div>
+
+ <div class="section-title" style="margin-top:24px;">Juridiske implikasjoner — aksjonæravtalen av 27. november 2018</div>
+
+ <table class="risk-table" style="margin-bottom:14px;">
+ <thead><tr><th>Klausul</th><th>Innhold</th><th>Implikasjon for AG</th><th>Implikasjon for prosjektet</th></tr></thead>
+ <tbody>
+ <tr>
+ <td><strong>Vetorett ved finansiering og kapitalutvidelse</strong></td>
+ <td style="font-size:11px;">Beslutninger om kapitalutvidelse, opptak av ny gjeld og finansieringsavtaler utenfor normal drift krever godkjennelse fra begge aksjonærer.</td>
+ <td style="font-size:11px;color:#3B6D11;">AG har absolutt vetorett mot byggestart. Ingen byggelånsavtale, entrepriseavtale eller ny EK-emisjon kan gjennomføres uten AGs samtykke. Dette er AGs sterkeste forhandlingskort.</td>
+ <td style="font-size:11px;">Prosjektet kan ikke igangsettes uten enstemmighet. LinkPro kan ikke alene vedta gjennomføring — verken i styre eller generalforsamling.</td>
+ </tr>
+ <tr>
+ <td><strong>Dobbelstemme til styreleder ved stemmelikhet</strong></td>
+ <td style="font-size:11px;">Styreleder (LinkPro-representant) har dobbelstemme ved stemmelikhet i styret.</td>
+ <td style="font-size:11px;color:#A32D2D;">Ved ordinære styresaker der AG og LinkPro er uenige, vil LinkPro vinne ved stemmelikhet. AG må derfor bruke vetoretten (finansieringsklausulen) aktivt, ikke stole på å blokkere gjennom vanlig stemmegivning.</td>
+ <td style="font-size:11px;">Operasjonelle beslutninger (f.eks. megleroppdrag, markedsføringskostnader) kan vedtas av LinkPro alene. Finansieringsbeslutninger kan det ikke.</td>
+ </tr>
+ <tr>
+ <td><strong>Transparens og åpne kalkyler</strong></td>
+ <td style="font-size:11px;">Alle tjenester og leveranser fra partene til selskapet skal baseres på åpenhet, transparens og konkurransedyktige vilkår med åpne kalkyler.</td>
+ <td style="font-size:11px;color:#3B6D11;">AG har kontraktuell rett til full innsyn i LinkPros honorarer for prosjektledelse og byggherreansvar (konto 4513). For GV24B utgjorde LinkPros honorar 704 500 av totale 705 275 i denne posten. Tilsvarende transparens kan kreves for VTV.</td>
+ <td style="font-size:11px;">Alle leveranser fra LinkPro-konsernet til SP må prises til markedspris og dokumenteres. Brudd på dette kan utgjøre inhabilitet etter asl. § 6-27.</td>
+ </tr>
+ <tr>
+ <td><strong>AGs rolle som totalentreprenør</strong></td>
+ <td style="font-size:11px;">Aksjonæravtalen tilsier at Areal-Gruppen er tiltenkt å levere totalentrepriser på byggeprosjekter i selskapet.</td>
+ <td style="font-size:11px;color:#3B6D11;">AG har en avtalebasert preferanseposisjon på entreprisen for VTV. Dersom byggestart vedtas, bør AG fremme krav om å konkurrere om entreprisen på like vilkår — noe aksjonæravtalen støtter.</td>
+ <td style="font-size:11px;">Prosjektet kan ikke tildele entreprisen til ekstern aktør uten at AG har fått mulighet til å inngi tilbud. Avvik fra dette kan representere kontraktsbrudd.</td>
+ </tr>
+ <tr>
+ <td><strong>Rentebetingelser aksjonærlån</strong></td>
+ <td style="font-size:11px;">Rente på aksjonærlån skal ligge 1–2 % over banklån. Styret kan beslutte rentefrihet så lenge selskapet ikke har inntjeningsevne.</td>
+ <td style="font-size:11px;">AGs aksjonærlån på 2,32 MNOK er rentefritt per styrevedtak. Renten løper ikke og forfaller ikke automatisk. Ved innfrielse er det kun hovedstol som betales — med mindre et nytt styrevedtak reaktiverer renten.</td>
+ <td style="font-size:11px;color:#A32D2D;">Rentefriheten er et styrevedtak, ikke en avtalerett. Det kan endres. Dersom prosjektet igangsettes og selskapet begynner å generere inntekter, vil grunnlaget for rentefrihet falle bort.</td>
+ </tr>
+ <tr>
+ <td><strong>Overdragelse av aksjer</strong></td>
+ <td style="font-size:11px;">Aksjeoverdragelse krever den andre aksjonærens godkjennelse. Forkjøpsrett gjelder ved salg til tredjepart.</td>
+ <td style="font-size:11px;color:#3B6D11;">AG kan ikke tvinges til å selge aksjer til underpris. LinkPro kan heller ikke selge sine aksjer til tredjepart uten AGs samtykke. Dette gir AG en beskyttende posisjon: ingen ny ukjent medaksjonær kan tvinges inn.</td>
+ <td style="font-size:11px;">Salg av AGs aksjer til LinkPro krever ikke tredjepart-godkjennelse — det er en bilateral transaksjon mellom de to eksisterende partene og kan gjennomføres raskt.</td>
+ </tr>
+ <tr>
+ <td><strong>Habilitetsforhold — styreleder</strong></td>
+ <td style="font-size:11px;">Asl. § 6-27: styremedlem må fratre behandling av saker der vedkommende har en fremtredende personlig eller økonomisk særinteresse.</td>
+ <td style="font-size:11px;color:#3B6D11;">Styreleder Thor Ekhorn representerer 60 %-eier LinkPro og er tilknyttet konsern som har fakturert SP for betydelige beløp. Han er inhabil i saker om entreprisetildeling, honorarfastsettelse og salg av aksjer fra AG til LinkPro. AG bør kreve at inhabilitet protokollføres ved alle slike saker.</td>
+ <td style="font-size:11px;color:#A32D2D;">Vedtak fattet under inhabilitet kan angripes rettslig. Dersom styreleder deltar i beslutning om å tildele entreprise til nærstående uten habilitetserklæring, kan vedtaket kjennes ugyldig.</td>
+ </tr>
+ </tbody>
+ </table>
+
+ <div class="conclusion warn" style="margin-top:4px;">
+ <h4>Juridisk oppsummering — AGs posisjon er sterk, men må aktiveres aktivt</h4>
+ <p>Aksjonæravtalen gir Areal-Gruppen tre konkrete rettigheter som er direkte relevante nå: (1) absolutt vetorett mot enhver finansieringsbeslutning, herunder byggestart og opptak av byggelån — dette kan ikke omgås av LinkPro; (2) rett til full transparens og innsyn i alle leveranser fra LinkPro-konsernet til selskapet, med krav om markedspris og åpne kalkyler; og (3) forhandlingsposisjon som avtalebasert totalentreprenør dersom byggestart likevel vedtas. Ved aksjesalg (Alt C) er det viktig å protokollføre styrelederens inhabilitet under behandlingen, og å sikre at aksjonærlånet på 2,32 MNOK innfris simultant med overdragelsen — ikke som et etterfølgende krav. Rettslig gjennomtvingelse av aksjonærlånet er i utgangspunktet uproblematisk da det er et dokumentert pengekrav, men simultanprinsippet i en aksjekjøpsavtale eliminerer enhver betalingsrisiko.</p>
+ </div>
+ </div>
+
+ <!-- NÅVERDI -->
+ <div id="tab-naverdi" class="panel">
+
+ <div class="conclusion" style="background:#E6F1FB;border-color:#378ADD;margin-bottom:18px;">
+ <h4 style="color:#0C447C;">Nåverdimodell — VTV 8 leiligheter</h4>
+ <p style="color:#0C447C;">Standard DCF-kalkyle for utbyggingsprosjekt. Verdsettelsesdato: 24. mars 2026. Byggeoppstart: 30. juni 2026. Ferdigstillelse og innbetaling fra kjøpere: 30. juni 2027 (15 måneder frem). Kalkulasjonsrente 10 % p.a. (bransjepraksis for egenkapitalrisiko i mindre prosjekter) med sensitivitet 8 % og 12 %. Tomteverdi (4 950 840) er sunk cost, men inngår som bundet kapital / alternativkostnad i NPV-beregningen.</p>
+ </div>
+
+ <div class="section-title">Tidslinje og kontantstrøm</div>
+ <div style="overflow-x:auto;">
+ <table class="risk-table compact-table" style="min-width:620px;">
+ <thead>
+ <tr>
+ <th>Post</th>
+ <th>Beløp (nominelt)</th>
+ <th>Tidspunkt</th>
+ <th>Diskonteringsfaktor<br><span style="font-weight:400;font-size:10px;">10 % p.a.</span></th>
+ <th>Nåverdi</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr style="background:#FCEBEB;">
+ <td colspan="5" style="font-weight:500;color:#791F1F;font-size:10px;text-transform:uppercase;letter-spacing:.04em;">UTBETALINGER</td>
+ </tr>
+ <tr>
+ <td>Opparbeidelse + VA + tilknytning + saksbehandling + prosjektering</td>
+ <td>4 284 694</td>
+ <td>t = 0–3 mnd (snitt t=0)</td>
+ <td>1,000</td>
+ <td>4 285 000</td>
+ </tr>
+ <tr style="background:#f7f7f5;">
+ <td>Totalentreprise inkl. betong (12 like rater)</td>
+ <td>23 657 401</td>
+ <td>t = 3–15 mnd (snitt t=9 mnd)</td>
+ <td>0,9315</td>
+ <td>22 036 000</td>
+ </tr>
+ <tr>
+ <td>Finanskostnader byggelån</td>
+ <td>1 532 000</td>
+ <td>t = 3–15 mnd (snitt t=9 mnd)</td>
+ <td>0,9315</td>
+ <td>1 427 000</td>
+ </tr>
+ <tr style="background:#f7f7f5;">
+ <td>Salgs- og markedsføringskostnader</td>
+ <td>614 831</td>
+ <td>t = 12 mnd</td>
+ <td>0,9057</td>
+ <td>557 000</td>
+ </tr>
+ <tr>
+ <td>Uforutsett (kalkyle 4517)</td>
+ <td>1 250 000</td>
+ <td>t = 15 mnd</td>
+ <td>0,8877</td>
+ <td>1 110 000</td>
+ </tr>
+ <tr style="background:#FCEBEB;">
+ <td><strong>Sum NV utbetalinger</strong></td>
+ <td><strong>31 338 926</strong></td>
+ <td>—</td>
+ <td>—</td>
+ <td><strong>29 415 000</strong></td>
+ </tr>
+ <tr style="background:#f7f7f5;">
+ <td>Tomt (alternativkostnad — eiendel med bundet kapital)</td>
+ <td>4 950 840</td>
+ <td>t = −∞ (allerede betalt)</td>
+ <td>1,000</td>
+ <td>4 951 000</td>
+ </tr>
+ <tr style="background:#FCEBEB;">
+ <td><strong>Sum NV kostnader inkl. tomt</strong></td>
+ <td><strong>36 289 766</strong></td>
+ <td>—</td>
+ <td>—</td>
+ <td><strong>34 366 000</strong></td>
+ </tr>
+ <tr style="background:#EAF3DE;">
+ <td colspan="5" style="font-weight:500;color:#27500A;font-size:10px;text-transform:uppercase;letter-spacing:.04em;">INNTEKTER — t = 15 mnd, diskonteringsfaktor 0,8877</td>
+ </tr>
+ <tr>
+ <td>Markedspris lav — 4 650 000 × 8</td>
+ <td>37 200 000</td>
+ <td>t = 15 mnd</td>
+ <td>0,8877</td>
+ <td>33 022 000</td>
+ </tr>
+ <tr style="background:#f7f7f5;">
+ <td>Markedspris høy — 4 975 000 × 8</td>
+ <td>39 800 000</td>
+ <td>t = 15 mnd</td>
+ <td>0,8877</td>
+ <td>35 330 000</td>
+ </tr>
+ <tr>
+ <td>Break-even — 4 941 000 × 8</td>
+ <td>39 528 000</td>
+ <td>t = 15 mnd</td>
+ <td>0,8877</td>
+ <td>35 088 000</td>
+ </tr>
+ <tr style="background:#EAF3DE;">
+ <td><strong>Målpris — 5 500 000 × 8</strong></td>
+ <td><strong>44 000 000</strong></td>
+ <td>t = 15 mnd</td>
+ <td>0,8877</td>
+ <td><strong>39 059 000</strong></td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ <p style="font-size:11px;color:#73726c;margin-top:6px;">Månedlig diskonteringsfaktor: (1+0,10)^(1/12) = 1,00797. t=9 mnd faktor: 0,9315. t=12 mnd: 0,9057. t=15 mnd: 0,8877. Entrepriseutbetalinger diskontert ved snitt midtpunkt i byggeperiode (t=9 mnd). Utbyggingskostnader diskontert ved t=0 (konservativt — faktisk løper de over 12 mnd).</p>
+
+ <div class="section-title" style="margin-top:22px;">NPV — fire prisnivåer, tre kalkulasjonsrenter</div>
+ <div style="overflow-x:auto;">
+ <table class="risk-table compact-table" style="min-width:640px;">
+ <thead>
+ <tr>
+ <th>Prisnivå</th>
+ <th>NV inntekt</th>
+ <th style="white-space:normal;min-width:80px;">NPV total<br><span style="font-weight:400;font-size:10px;">8 % p.a.</span></th>
+ <th style="white-space:normal;min-width:80px;">NPV total<br><span style="font-weight:400;font-size:10px;">10 % p.a.</span></th>
+ <th style="white-space:normal;min-width:80px;">NPV total<br><span style="font-weight:400;font-size:10px;">12 % p.a.</span></th>
+ <th style="white-space:normal;min-width:80px;">NPV AG 40 %<br><span style="font-weight:400;font-size:10px;">10 % p.a.</span></th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>Markedspris lav — 4 650 000</td>
+ <td>33 022 000</td>
+ <td style="color:#A32D2D"><strong>−755 000</strong></td>
+ <td style="color:#A32D2D"><strong>−1 344 000</strong></td>
+ <td style="color:#A32D2D"><strong>−1 918 000</strong></td>
+ <td style="color:#A32D2D"><strong>−538 000</strong></td>
+ </tr>
+ <tr style="background:#f7f7f5;">
+ <td>Markedspris høy — 4 975 000</td>
+ <td>35 330 000</td>
+ <td style="color:#3B6D11"><strong>+1 367 000</strong></td>
+ <td style="color:#3B6D11"><strong>+964 000</strong></td>
+ <td style="color:#3B6D11"><strong>+576 000</strong></td>
+ <td style="color:#3B6D11"><strong>+386 000</strong></td>
+ </tr>
+ <tr>
+ <td>Break-even — 4 941 000</td>
+ <td>35 088 000</td>
+ <td style="color:#3B6D11"><strong>+1 126 000</strong></td>
+ <td style="color:#3B6D11"><strong>+722 000</strong></td>
+ <td style="color:#3B6D11"><strong>+336 000</strong></td>
+ <td style="color:#3B6D11"><strong>+289 000</strong></td>
+ </tr>
+ <tr style="background:#EAF3DE;">
+ <td><strong>Målpris — 5 500 000</strong></td>
+ <td><strong>39 059 000</strong></td>
+ <td style="color:#3B6D11"><strong>+5 042 000</strong></td>
+ <td style="color:#3B6D11"><strong>+4 693 000</strong></td>
+ <td style="color:#3B6D11"><strong>+4 359 000</strong></td>
+ <td style="color:#3B6D11"><strong>+1 877 000</strong></td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ <p style="font-size:11px;color:#73726c;margin-top:6px;">NPV = NV inntekter − NV utbetalinger (29 415 000) − tomt alternativkostnad (4 951 000). 8 %: NV utbetalinger 30 084 000, tomt 4 951 000. 12 %: NV utbetalinger 28 762 000, tomt 4 951 000. AG-andel = NPV total × 40 %.</p>
+
+ <div class="section-title" style="margin-top:22px;">Internrente (IRR) og avkastning på investert kapital</div>
+ <div style="overflow-x:auto;">
+ <table class="risk-table compact-table" style="min-width:560px;">
+ <thead>
+ <tr>
+ <th>Prisnivå</th>
+ <th>Nominelt overskudd</th>
+ <th>IRR p.a.<br><span style="font-weight:400;font-size:10px;">15 mnd horisont</span></th>
+ <th>ROE total<br><span style="font-weight:400;font-size:10px;">på investert EK</span></th>
+ <th>ROE AG<br><span style="font-weight:400;font-size:10px;">40 % andel</span></th>
+ <th>Vurdering</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td>Markedspris lav — 4 650 000</td>
+ <td style="color:#A32D2D">−1 402 000</td>
+ <td style="color:#A32D2D">Negativ</td>
+ <td style="color:#A32D2D">−3,9 %</td>
+ <td style="color:#A32D2D">−3,9 %</td>
+ <td><span class="pill pill-red">Negativ avkastning</span></td>
+ </tr>
+ <tr style="background:#f7f7f5;">
+ <td>Markedspris høy — 4 975 000</td>
+ <td style="color:#3B6D11">+2 460 000</td>
+ <td style="color:#3B6D11">~5,5 % p.a.</td>
+ <td style="color:#3B6D11">+6,8 %</td>
+ <td style="color:#3B6D11">+6,8 %</td>
+ <td><span class="pill pill-amber">Under avkastningskrav</span></td>
+ </tr>
+ <tr>
+ <td>Break-even — 4 941 000</td>
+ <td>0</td>
+ <td>~4,0 % p.a.</td>
+ <td>0 %</td>
+ <td>0 %</td>
+ <td><span class="pill pill-amber">Dekker ikke EK-kostnad</span></td>
+ </tr>
+ <tr style="background:#EAF3DE;">
+ <td><strong>Målpris — 5 500 000</strong></td>
+ <td style="color:#3B6D11"><strong>+7 600 000</strong></td>
+ <td style="color:#3B6D11"><strong>~16 % p.a.</strong></td>
+ <td style="color:#3B6D11"><strong>+21,0 %</strong></td>
+ <td style="color:#3B6D11"><strong>+21,0 %</strong></td>
+ <td><span class="pill pill-green">Over avkastningskrav</span></td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ <p style="font-size:11px;color:#73726c;margin-top:6px;">IRR beregnet iterativt med kontantstrøm: −36 290 000 ved t=0 (gjenstående + tomt), +salgsinntekt ved t=15 mnd. ROE = nominelt overskudd ÷ total investert kapital (36 290 000). Avkastningskrav EK: 10 % p.a. = 12,5 % for 15 måneder.</p>
+
+ <div class="section-title" style="margin-top:22px;">Nøkkeltall sammendrag</div>
+ <div class="kv-grid" style="grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px;">
+ <div class="kv"><label>Investert kapital (fremover)</label><div class="val" style="font-size:16px;">36,3 MNOK</div><div class="sub">Gjenstående + tomt EK</div></div>
+ <div class="kv"><label>NV kostnader (10 %)</label><div class="val" style="font-size:16px;">34,4 MNOK</div><div class="sub">Diskontert til i dag</div></div>
+ <div class="kv"><label>Break-even NV-pris</label><div class="val" style="font-size:16px;">4 838 000</div><div class="sub">NV kostnader ÷ 8 leil.</div></div>
+ <div class="kv"><label>IRR ved målpris</label><div class="val" style="font-size:16px;color:#3B6D11;">~16 % p.a.</div><div class="sub">Over krav på 10 %</div></div>
+ </div>
+ <p style="font-size:11px;color:#73726c;margin-bottom:14px;">Break-even NV-pris: 34 366 000 ÷ 8 = 4 796 000 — den prisen per leilighet som gir NPV = 0 ved 10 % kalkulasjonsrente. DNB høy (4 975 000) er 137 000 over dette nivået.</p>
+
+ <div class="conclusion warn" style="margin-top:4px;">
+ <h4>Nåverdianalysen: lønnsomhet avhenger kritisk av prisnivå — og markedsprisen er nær break-even NV</h4>
+ <p>Ved 10 % kalkulasjonsrente er NPV negativ ved markedspris lav (−1 344 000) og positiv ved markedspris høy (+964 000). Break-even NV-pris er 4 838 000 — 188 000 over DNBs laveste indikasjon og 137 000 under DNBs høyeste. Prosjektet befinner seg i et smalt lønnsomhetsvindu ved markedspris. Målpris gir NPV +4 693 000 og IRR ~16 % — klart lønnsomt. For AG betyr dette at alternativ A (bygg) kun er rasjonelt dersom forhåndssalg bekreftes til priser over 4 941 000 (regnskapsmessig break-even) — noe markedet per juni 2024 ikke har bekreftet.</p>
+ </div>
+
+ </div>
+
+    <!-- KONTANTSTRØM -->
+    <div id="tab-kontantstrøm" class="panel">
+
+      <div class="conclusion" style="background:#E6F1FB;border-color:#378ADD;margin-bottom:18px;">
+        <h4 style="color:#0C447C;">Kontantstrømsanalyse — VTV, 8 leiligheter</h4>
+        <p style="color:#0C447C;">Månedlig kontantstrøm fra mars 2026 (i dag) til juni 2027 (overtakelse). Byggeoppstart 1. juli 2026. Entreprise betales i 12 like månedlige rater. Alle salgsinntekter innbetales ved overtakelse 30. juni 2027. Finansiert av EK (2 800 000), aksjonærlån AG (2 320 000) + LinkPro (3 480 000) = totalt aksjonærlån 5 800 000, og byggelån (ramme 28 MNOK, trekkes i takt med entreprise). Utbyggingskostnader (opparbeidelse, VA, tilknytning, saksbehandling, prosjektering) løper parallelt med entreprisen fra oppstart og finansieres av EK og aksjonærlån. Tomteverdi 4 950 840 er en eiendel som stilles som pantesikkerhet for byggelånet.</p>
+      </div>
+
+      <div class="section-title">Finansieringsstruktur — innbetalt kapital</div>
+      <div style="overflow-x:auto;margin-bottom:16px;">
+      <table class="risk-table compact-table" style="min-width:520px;">
+        <thead><tr><th>Finansieringskilde</th><th>Beløp</th><th>Rente</th><th>Stilles som</th><th>Tidspunkt</th></tr></thead>
+        <tbody>
+          <tr><td>EK — Areal-Gruppen (40 %)</td><td>1 120 000</td><td>—</td><td>Kontant EK</td><td>Innbetalt</td></tr>
+          <tr><td>EK — LinkPro (60 %)</td><td>1 680 000</td><td>—</td><td>Kontant EK</td><td>Innbetalt</td></tr>
+          <tr><td>Tomt (4518)</td><td>4 950 840</td><td>—</td><td>Eiendel — realiseres ved salg</td><td>Bokført</td></tr>
+          <tr><td>Aksjonærlån AG (40 %)</td><td>2 320 000</td><td>0 % (styrevedtak)</td><td>Lån fra aksjonær</td><td>Innbetalt</td></tr>
+          <tr><td>Aksjonærlån LinkPro (60 %)</td><td>3 480 000</td><td>0 % (styrevedtak)</td><td>Lån fra aksjonær</td><td>Innbetalt</td></tr>
+          <tr style="background:#EAF3DE;"><td><strong>Sum kontant EK og aksjonærlån</strong></td><td><strong>8 600 000</strong></td><td>—</td><td>Dekker utbyggingskostnader utenfor byggelån</td><td>—</td></tr>
+          <tr style="background:#D6E4F0;"><td>Tomt (sikkerhet i bank, ikke kontant)</td><td>4 950 840</td><td>—</td><td>Pantesikkerhet for byggelån</td><td>—</td></tr>
+          <tr><td>Byggelån (ramme)</td><td>30 000 000</td><td>7,0 % p.a.</td><td>Trekkes månedlig — dekker alle kostnader</td><td>Juli 2026–</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="section-title">Månedlig kontantstrøm — prosjektnivå</div>
+      <p style="font-size:11px;color:#73726c;margin-bottom:8px;">Entreprise: 12 like rater à 1 971 450/mnd (juli 2026–juni 2027). Byggelånsrente beregnet på akkumulert saldo per mnd (7 % / 12). Provisjon 35 000/mnd på full ramme. Negative tall = utbetaling.</p>
+      <div style="overflow-x:auto;">
+      <table class="risk-table compact-table" style="min-width:860px;">
+        <thead>
+          <tr>
+            <th>Periode</th>
+            <th>Utbyggings­kostnader</th>
+            <th>Entreprise</th>
+            <th>Salg/MF</th>
+            <th>Finans­kostnad</th>
+            <th>Sum utbet.</th>
+            <th>Byggelåns­saldo (slutt)</th>
+            <th>Akk. kostnader</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr>
+            <td>Juli 2026 — mnd 1</td>
+            <td>−407 000</td><td>−1 971 000</td><td>−51 000</td><td>−49 000</td>
+            <td><strong>−2 478 000</strong></td><td>2 429 000</td><td>2 478 000</td>
+          </tr>
+          <tr style="background:#f7f7f5;">
+            <td>Aug 2026 — mnd 2</td>
+            <td>−357 000</td><td>−1 971 000</td><td>−51 000</td><td>−63 000</td>
+            <td><strong>−2 442 000</strong></td><td>4 808 000</td><td>4 920 000</td>
+          </tr>
+          <tr>
+            <td>Sep 2026 — mnd 3</td>
+            <td>−357 000</td><td>−1 971 000</td><td>−51 000</td><td>−77 000</td>
+            <td><strong>−2 456 000</strong></td><td>7 187 000</td><td>7 376 000</td>
+          </tr>
+          <tr style="background:#f7f7f5;">
+            <td>Okt 2026 — mnd 4</td>
+            <td>−357 000</td><td>−1 971 000</td><td>−51 000</td><td>−91 000</td>
+            <td><strong>−2 470 000</strong></td><td>9 566 000</td><td>9 846 000</td>
+          </tr>
+          <tr>
+            <td>Nov 2026 — mnd 5</td>
+            <td>−357 000</td><td>−1 971 000</td><td>−51 000</td><td>−105 000</td>
+            <td><strong>−2 484 000</strong></td><td>11 945 000</td><td>12 330 000</td>
+          </tr>
+          <tr style="background:#f7f7f5;">
+            <td>Des 2026 — mnd 6</td>
+            <td>−357 000</td><td>−1 971 000</td><td>−51 000</td><td>−118 000</td>
+            <td><strong>−2 497 000</strong></td><td>14 324 000</td><td>14 827 000</td>
+          </tr>
+          <tr>
+            <td>Jan 2027 — mnd 7</td>
+            <td>−357 000</td><td>−1 971 000</td><td>−51 000</td><td>−132 000</td>
+            <td><strong>−2 511 000</strong></td><td>16 703 000</td><td>17 339 000</td>
+          </tr>
+          <tr style="background:#f7f7f5;">
+            <td>Feb 2027 — mnd 8</td>
+            <td>−357 000</td><td>−1 971 000</td><td>−51 000</td><td>−146 000</td>
+            <td><strong>−2 525 000</strong></td><td>19 082 000</td><td>19 864 000</td>
+          </tr>
+          <tr>
+            <td>Mar 2027 — mnd 9</td>
+            <td>−357 000</td><td>−1 971 000</td><td>−51 000</td><td>−160 000</td>
+            <td><strong>−2 539 000</strong></td><td>21 461 000</td><td>22 403 000</td>
+          </tr>
+          <tr style="background:#f7f7f5;">
+            <td>Apr 2027 — mnd 10</td>
+            <td>−357 000</td><td>−1 971 000</td><td>−51 000</td><td>−174 000</td>
+            <td><strong>−2 553 000</strong></td><td>23 840 000</td><td>24 956 000</td>
+          </tr>
+          <tr>
+            <td>Mai 2027 — mnd 11</td>
+            <td>−357 000</td><td>−1 971 000</td><td>−51 000</td><td>−188 000</td>
+            <td><strong>−2 567 000</strong></td><td>26 219 000</td><td>27 523 000</td>
+          </tr>
+          <tr style="background:#f7f7f5;">
+            <td>Juni 2027 — mnd 12</td>
+            <td>−357 000</td><td>−1 971 000</td><td>−51 000</td><td>−202 000</td>
+            <td><strong>−2 581 000</strong></td><td>28 598 000</td><td>30 104 000</td>
+          </tr>
+          <tr style="background:#FAEEDA;">
+            <td><strong>Uforutsett (4517)</strong></td>
+            <td colspan="4" style="color:#633806;">−1 250 000 (kalkyle avsatt buffer)</td>
+            <td><strong>−1 250 000</strong></td><td>—</td><td>31 354 000</td>
+          </tr>
+          <tr style="background:#2C3E50;">
+            <td style="color:white;font-weight:500;">Sum alle utbet.</td>
+            <td style="color:white;">−4 285 000</td>
+            <td style="color:white;">−23 652 000</td>
+            <td style="color:white;">−615 000</td>
+            <td style="color:white;">−1 556 000</td>
+            <td style="color:white;font-weight:500;">−30 108 000</td>
+            <td style="color:white;">—</td>
+            <td style="color:white;font-weight:500;">30 104 000</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+      <p style="font-size:11px;color:#73726c;margin-top:6px;">Rente pr mnd = akkumulert byggelånssaldo × 7 % / 12. Provisjon 35 000/mnd inngår i finanskostnad fra mnd 1. Alle kostnader dekkes av byggelånet. Totalt trekk per mnd: entreprise 1 971 000 + utbyggingskostnader 357 000 (mnd 1: 407 000 inkl. etableringsgebyr) + salg/MF 51 000. Finanskostnad = rente på akkumulert saldo (7 %/12) + provisjon 35 000/mnd. Sluttsaldo byggelån: 28 598 000. Tilbakebetales ved overtakelse.</p>
+
+      <div class="section-title" style="margin-top:22px;">Sluttoppgjør ved overtakelse 30. juni 2027</div>
+      <div style="overflow-x:auto;">
+      <table class="risk-table compact-table" style="min-width:700px;">
+        <thead>
+          <tr>
+            <th>Post</th>
+            <th>Mrk.pris lav<br><span style="font-weight:400;font-size:10px;">4 650 000 × 8</span></th>
+            <th>Mrk.pris høy<br><span style="font-weight:400;font-size:10px;">4 975 000 × 8</span></th>
+            <th>Break-even<br><span style="font-weight:400;font-size:10px;">4 941 000 × 8</span></th>
+            <th>Målpris<br><span style="font-weight:400;font-size:10px;">5 500 000 × 8</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background:#EAF3DE;">
+            <td><strong>+ Salgsinntekter</strong></td>
+            <td style="color:#3B6D11"><strong>37 200 000</strong></td>
+            <td style="color:#3B6D11"><strong>39 800 000</strong></td>
+            <td style="color:#3B6D11"><strong>39 528 000</strong></td>
+            <td style="color:#3B6D11"><strong>44 000 000</strong></td>
+          </tr>
+          <tr>
+            <td>− Tilbakebetaling byggelån (inkl. utbygg, salg/MF)</td>
+            <td>−28 598 000</td><td>−28 598 000</td><td>−28 598 000</td><td>−28 598 000</td>
+          </tr>
+
+
+          <tr style="background:#f7f7f5;">
+            <td>− Uforutsett</td>
+            <td>−1 250 000</td><td>−1 250 000</td><td>−1 250 000</td><td>−1 250 000</td>
+          </tr>
+          <tr style="background:#2C3E50;">
+            <td style="color:white;font-weight:500;">= Brutto kontantoverskudd</td>
+            <td style="color:white;font-weight:500;">7 352 000</td>
+            <td style="color:white;font-weight:500;">9 952 000</td>
+            <td style="color:white;font-weight:500;">9 680 000</td>
+            <td style="color:white;font-weight:500;">14 152 000</td>
+          </tr>
+          <tr>
+            <td>− Tilbakebetaling aksjonærlån (AG 2 320 000 + LP 3 480 000)</td>
+            <td>−5 800 000</td><td>−5 800 000</td><td>−5 800 000</td><td>−5 800 000</td>
+          </tr>
+          <tr style="background:#f7f7f5;">
+            <td>− Tilbakebetaling kontant EK</td>
+            <td>−2 800 000</td><td>−2 800 000</td><td>−2 800 000</td><td>−2 800 000</td>
+          </tr>
+          <tr style="background:#EAF3DE;">
+            <td><strong>= Fritt overskudd etter EK og lån</strong></td>
+            <td style="color:#A32D2D"><strong>−1 248 000</strong></td>
+            <td style="color:#3B6D11"><strong>+1 352 000</strong></td>
+            <td style="color:#3B6D11"><strong>+1 080 000</strong></td>
+            <td style="color:#3B6D11"><strong>+5 552 000</strong></td>
+          </tr>
+          <tr style="background:#EAF3DE;">
+            <td><strong>Dekningsbidrag (DB)</strong></td>
+            <td style="color:#A32D2D"><strong>−3,6 %</strong></td>
+            <td style="color:#3B6D11"><strong>+2,5 %</strong></td>
+            <td style="color:#3B6D11"><strong>0 %</strong></td>
+            <td style="color:#3B6D11"><strong>+10,2 %</strong></td>
+          </tr>
+          <tr style="background:#EAF3DE;">
+            <td><strong>DB-andel AG (40 %)</strong></td>
+            <td style="color:#A32D2D"><strong>−499 000</strong></td>
+            <td style="color:#3B6D11"><strong>+541 000</strong></td>
+            <td style="color:#3B6D11"><strong>+432 000</strong></td>
+            <td style="color:#3B6D11"><strong>+2 221 000</strong></td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+      <p style="font-size:11px;color:#73726c;margin-top:6px;">EK inkl. tomt tilbakebetalt: 2 800 000 + 4 950 840 = 7 750 840. «Fritt overskudd» viser hva som gjenstår etter at kontant EK (2 800 000) og begge aksjonærlån (5 800 000) er tilbakebetalt. Tomten er en eiendel som realiseres gjennom salgsprisen — den inngår ikke i kapitalrestitusjonen. Ved målpris er fritt overskudd +4 103 000 (AG-andel 40 %: +1 641 000). Dekningsbidrag (DB) beregnes som (salgsinntekter − alle drifts­kostnader) / salgsinntekter og er uavhengig av kapitalstruktur.</p>
+
+      <div class="section-title" style="margin-top:22px;">Likviditetsprofil — maksimalt kapitalbehov</div>
+      <div class="kv-grid" style="grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px;">
+        <div class="kv"><label>Maks kapitalbehov</label><div class="val" style="font-size:16px;">31,3 MNOK</div><div class="sub">Akkumulert ved juni 2027</div></div>
+        <div class="kv"><label>Byggelån maks saldo</label><div class="val" style="font-size:16px;">28,6 MNOK</div><div class="sub">Inkl. alle kostnader</div></div>
+        <div class="kv"><label>EK + AK-lån (buffer)</label><div class="val" style="font-size:16px;">8,6 MNOK</div><div class="sub">EK-andel i finansieringsplan</div></div>
+        <div class="kv"><label>Kritisk kontrollpunkt</label><div class="val" style="font-size:16px;color:#BA7517;">5/8 forhåndssalg</div><div class="sub">Krav før byggelån aktiveres</div></div>
+      </div>
+
+      <div class="conclusion warn" style="margin-top:4px;">
+        <h4>Likviditeten håndteres — men forhåndssalg er det kritiske kontrollpunktet</h4>
+        <p>Alle kostnader i byggeperioden dekkes av byggelånet (ramme 30 MNOK). EK (2 800 000) og aksjonærlån (5 800 000) = 8 600 000 utgjør egenkapitaldelen i finansieringsplanen og tilbakebetales av prosjektets overskudd ved overtakelse. Fra juli 2026 dekker byggelånet entrepriseutbetalingene løpende. Det kritiske kontrollpunktet er at banken aktiverer byggelånet ved oppstart — dette forutsetter ferdig finansieringsplan og forhåndssalg av minst 5/8 leiligheter. Alle salgsinntekter innbetales samlet ved overtakelse 30. juni 2027 og dekker byggelånet (23,7 MNOK), aksjonærlånet (2,32 MNOK) og EK inkl. tomt (7,75 MNOK). Overskytende etter byggelån, aksjonærlån (5 800 000) og kontant EK (2 800 000) er prosjektets frie overskudd. Tomten er en eiendel og inngår ikke i kapitalrestitusjonen — verdien er realisert gjennom salgsprisen. Fritt overskudd er positivt ved målpris (+4 103 000, AG-andel +1 641 000).</p>
+      </div>
+
+    </div>
+
+ <!-- ENDRINGSLOGG -->
+ <div id="tab-logg" class="panel">
+ <div class="conclusion" style="background:#E6F1FB;border-color:#378ADD;margin-bottom:18px;">
+ <h4 style="color:#0C447C;">Endringslogg — risikomodell Solhaugen Prosjekt / VTV</h4>
+ <p style="color:#0C447C;">Kronologisk oversikt over alle endringer og utvidelser gjort under byggingen av modellen. Basert på chat-historikk fra to arbeidsøkter (21.–24. mars 2026). Dato er arbeidsøktens dato, ikke nødvendigvis klokkeslett.</p>
+ </div>
+
+ <div class="section-title">21. mars 2026 — første arbeidsøkt</div>
+ <div class="timeline">
+
+ <div class="tl-item">
+ <div class="tl-dot blue"></div>
+ <div class="tl-title">Grunnmodell opprettet</div>
+ <div class="tl-body">Interaktiv beslutningsmodell med tre alternativer (bygg, selg tomt, vent) basert på prosjektdokumenter, kalkyle per 09.02.2026 og låneavtaler. Forutsetninger: basispris 4 806 250, break-even 5 062 500, entreprisekostnad 24,26 MNOK (anbudstestet feb. 2026).</div>
+ </div>
+
+ <div class="tl-item">
+ <div class="tl-dot blue"></div>
+ <div class="tl-title">Innskutt EK lagt inn</div>
+ <div class="tl-body">Aksjekapital 200 000, overkurs 2 600 000, sum innskutt EK 2 800 000 — bekreftet mot stiftelsesdokumenter og emisjon mars 2019. Totalt investert kapital 10 800 000 (EK + gjeld) som referansepunkt.</div>
+ </div>
+
+ <div class="tl-item">
+ <div class="tl-dot blue"></div>
+ <div class="tl-title">Aksjonæravtale-klausuler dokumentert</div>
+ <div class="tl-body">Fire klausuler identifisert som relevante: vetorett ved finansiering, transparenskrav for leveranser, AGs rolle som totalentreprenør, rentebetingelser aksjonærlån. Habilitetsforhold (asl. § 6-27) for styreleder lagt inn.</div>
+ </div>
+
+ <div class="tl-item">
+ <div class="tl-dot blue"></div>
+ <div class="tl-title">Ventekostnad oppdatert — aksjonærlånsrente null</div>
+ <div class="tl-body">Etter avklaring om at styret har vedtatt rentefrihet på aksjonærlånene, ble ventekostnaden korrigert. Eneste løpende kostnad er bankrenter på DNB-lån (2,2 MNOK × 7 %).</div>
+ </div>
+
+ <div class="tl-item">
+ <div class="tl-dot blue"></div>
+ <div class="tl-title">Ventekostnad fastsatt til 200 000/år</div>
+ <div class="tl-body">Oppdatert fra 284 000 til 200 000/år etter mer presis beregning av løpende kostnader (banklånsrente + drift, eksklusive aksjonærlånsrente).</div>
+ </div>
+
+ <div class="tl-item">
+ <div class="tl-dot blue"></div>
+ <div class="tl-title">Glimt-stadion presisert til 2028</div>
+ <div class="tl-body">Ferdigstillelse av ny Bodø Glimt-stadion presisert til 2028 — ikke 2026/27 som tidligere angitt. Stadionpremie ikke priset inn i nåværende markedsvurdering.</div>
+ </div>
+
+ <div class="tl-item">
+ <div class="tl-dot blue"></div>
+ <div class="tl-title">Aldersgruppe endret til 55+ (fra 65–79 år)</div>
+ <div class="tl-body">Primærmålgruppe oppdatert fra 65–79 år til 55+ etter SSB-gjennomgang av lønnsnivåer. 55+ er Bodøs høyestlønte aldersgruppe og strukturell kjøperdriver for VTV.</div>
+ </div>
+
+ <div class="tl-item">
+ <div class="tl-dot blue"></div>
+ <div class="tl-title">Helhetlig risikovurdering fra AGs ståsted</div>
+ <div class="tl-body">Etter diskusjon mellom aksjonærene ble det lagt inn en fullstendig risikovurdering med geopolitisk og inflasjonsperspektiv, inkludert alternativet om salg av aksjer til LinkPro mot tilbakebetaling av aksjonærlån 2,32 MNOK.</div>
+ </div>
+
+ </div>
+
+ <div class="section-title" style="margin-top:22px;">24. mars 2026 — andre arbeidsøkt (denne chatten)</div>
+ <div class="timeline">
+
+ <div class="tl-item">
+ <div class="tl-dot green"></div>
+ <div class="tl-title">Risikomodell konvertert til interaktiv HTML-artefakt</div>
+ <div class="tl-body">Ny fane-basert risikomodell bygget fra bunnen med seks faner: Oversikt, Renteeffekt, Alternativer, Risikomatrise, Anbefaling. Basert på all informasjon fra begge chatene og Norges Banks varslede renteheving torsdag 26. mars 2026.</div>
+ </div>
+
+ <div class="tl-item">
+ <div class="tl-dot green"></div>
+ <div class="tl-title">SSB lønnstall alle aldersgrupper lagt inn (tabell 12852)</div>
+ <div class="tl-body">Median, gjennomsnitt, nedre og øvre kvartil for under 30, 30–54 og 55+ (Bodø 2025). Maks lån (5 × årslønn) beregnet. Kjøpekraftanalyse med margin vs. break-even og målpris for alle grupper.</div>
+ </div>
+
+ <div class="tl-item">
+ <div class="tl-dot green"></div>
+ <div class="tl-title">Målpris 5 500 000 tatt inn som egen referanse</div>
+ <div class="tl-body">Alle tabeller oppdatert med to prisreferanser: break-even og målpris (Ekhorn). Marginer beregnet mot begge. Kolonneoverskrift «Margin vs. MP» → «Margin vs. målpris».</div>
+ </div>
+
+ <div class="tl-item">
+ <div class="tl-dot green"></div>
+ <div class="tl-title">Borettslag-fane lagt til (DNBs modell juni 2024)</div>
+ <div class="tl-body">Fullstendig borettslagsmodell med 60/40-fordeling innskudd/fellesgjeld. Finansieringsstruktur korrigert: innskuddslån fra bank (10 % EK-krav etter boliglånsforskriften). Månedlig bokostnad beregnet korrekt med annuitet og rentefradrag.</div>
+ </div>
+
+ <div class="tl-item">
+ <div class="tl-dot green"></div>
+ <div class="tl-title">Tre nye EK-scenarier lagt til i borettslag-fanen</div>
+ <div class="tl-body">25 % EK, 50 % EK og 60 % EK (hele innskuddet) lagt inn med egne finansieringstabeller og betjeningsevnetabeller. Rekkefølgelån-scenarioet (60 % EK ved simultant boligsalg) identifisert som eneste bærekraftige løpende scenario for énhusholdninger.</div>
+ </div>
+
+ <div class="tl-item">
+ <div class="tl-dot green"></div>
+ <div class="tl-title">SSB husholdningsinntekt lagt inn (tabell 06944, Bodø 2024)</div>
+ <div class="tl-body">Median inntekt etter skatt for alle husholdningstyper: aleneboende 409 100, enslig m/barn 590 600, par uten barn 877 900, par med barn 1 167 400 (netto/år). Kjøpekraftanalyse og betjeningsevne beregnet for alle typer.</div>
+ </div>
+
+ <div class="tl-item">
+ <div class="tl-dot green"></div>
+ <div class="tl-title">Husholdningsfordeling Bodø lagt inn (SSB 06944)</div>
+ <div class="tl-body">Énhusholdninger 12 025 (46,6 %), tohusholdninger 11 137 (43,2 %), par uten barn 6 423 (24,9 %). Par uten barn identifisert som primærmålgruppe med kjøpekraft +1 889 000 over break-even og +1 330 000 over målpris.</div>
+ </div>
+
+ <div class="tl-item">
+ <div class="tl-dot green"></div>
+ <div class="tl-title">Juridiske implikasjoner fra aksjonæravtalen lagt inn</div>
+ <div class="tl-body">Syv klausuler analysert med konsekvenser for AG og for prosjektet: vetorett, dobbelstemme, transparens, AGs rolle som totalentreprenør, rentebetingelser, overdragelse av aksjer, habilitetsforhold (asl. § 6-27). Simultanprinsippet ved aksjesalg presisert.</div>
+ </div>
+
+ <div class="tl-item">
+ <div class="tl-dot green"></div>
+ <div class="tl-title">Byggetid endret til 12 mnd — finanskostnad rekalkulert</div>
+ <div class="tl-body">Byggetid redusert fra 18 til 12 måneder. Finanskostnad beregnet med 12 like månedlige innbetalinger til entreprenør (snitt uttrekk 54,17 %, faktor 13/24). Total finanskostnad: 1 532 000 (ned fra 2 460 000). Break-even faller til 4 941 000 (ned fra 5 063 000).</div>
+ </div>
+
+ <div class="tl-item">
+ <div class="tl-dot green"></div>
+ <div class="tl-title">Alle tall oppdatert med ny finanskostnad</div>
+ <div class="tl-body">Break-even 4 941 000 propagert gjennom alle faner og tabeller: kjøpekraftmarginer, borettslag BE-rader (alle EK-nivåer), oversiktsbokser, alternativer-fanen, risikomatrise og anbefaling. DB ved målpris oppdatert til 10,2 % (fra 8,6 %). AG-oppside ved målpris oppdatert til 1,79 MNOK (fra 1,36 MNOK).</div>
+ </div>
+
+ <div class="tl-item">
+ <div class="tl-dot green"></div>
+ <div class="tl-title">Kolonner og tekst­bryting gjennomgått og rettet</div>
+ <div class="tl-body">Global white-space:nowrap på th-elementer. Multi-linje overskrifter gitt white-space:normal med min-width. Kolonneoverskrifter forkortet i brede tabeller. Typo «Totalprins» rettet. «BK» erstattet med «Bokostnader», «BRL» med «Borettslag», «oppsida» med «oppside».</div>
+ </div>
+
+ <div class="tl-item">
+ <div class="tl-dot green"></div>
+ <div class="tl-title">Kalkyle lastet opp — fremoverskuende beslutningskalkyle lagt inn</div>
+ <div class="tl-body">Kalkyle_VTV_20260209 gjennomgått. Prosjekteringskostnad bolig (konto 4513): 700 000 kr gjenstående (1 943 130 totalt — pådratt del er sunk cost fra GV24A/B). Tomtekostnad (4518: 4 950 840) er sunk cost regnskapsmessig, men stilles som EK i bankfinansiering og inngår i fremoverkalkylen. Fremover break-even beregnet: gjenstående kostnader 32 839 000 (inkl. oppdatert finanskostnad 1 532 000) + tomt 4 950 840 = 36 290 000 ÷ 8 = 4 536 000 per leilighet. DNB markedspris lav (4 650 000) er 114 000 over fremover BE — markedspris dekker alle gjenstående kontantutlegg. Lagt inn som eget referansepunkt i oversikt og alternativer-fanen.</div>
+ </div>
+
+ <div class="tl-item">
+ <div class="tl-dot green"></div>
+ <div class="tl-title">Ekstern artikkel vurdert mot VTV-kalkylen — Ole Johan Krog, OJK Rådgivning (02.02.2026)</div>
+ <div class="tl-body">Artikkel om kostnadsdrivere i boligprosjekter gjennomgått. Krog opererer fra Oslo-nord/øst med større prosjekter. Nøkkelfunn for VTV: (1) Krogs terskelpris 80 000–85 000 kr/BRAs sammenfaller med VTVs målpris på ~84 600 kr/BRAs — gir indirekte støtte til målprisnivået. (2) VTVs finanskostnad på 3,9 % er gunstigere enn Krogs norm på 7 % — kortere byggetid og lavt byggelånsvolum forklarer differansen. (3) Lav snittstørrelse (63–67 m²) bekreftes som kostnadsdrivende per BRAs — allerede priset inn i anbudstestet entreprisekostnad feb. 2026. (4) VTVs uforutsett-buffer (~9 %) er noe lavere enn Krogs anbefaling på 13 % — begrenset risikopuffer. Konklusjon: kalkylen er forsvarlig; det begrensende leddet er markedspris/kjøpekraft i Bodø, ikke byggekostnad.</div>
+ </div>
+
+ <div class="tl-item">
+ <div class="tl-dot green"></div>
+ <div class="tl-title">Lønnsoppgjør 2026–2027 lagt inn — fremskrevne kjøpekrafttall</div>
+ <div class="tl-body">Byggeoppstart 30. juni 2026, overtakelse 30. juni 2027. Lønnsøkning +4,2 % fra 1. mai 2026 (TBU-anslag) og +4,0 % fra 1. mai 2027. Samlet faktor juni 2027: ×1,08368. Lønnstabellen og begge kjøpekraftanalyser (énhusholdning og husholdningstyper) utvidet med to tidspunkter: nåsituasjon og juni 2027. Nøkkelfunn: 30–54-gruppen og 55+ median passerer break-even ved overtakelse. Par uten barn styrkes til +1 800 000 over målpris.</div>
+ </div>
+
+ <div class="tl-item">
+ <div class="tl-dot green"></div>
+ <div class="tl-title">Nåverdi-fane lagt til — DCF-kalkyle ferdigstillelse juni 2027</div>
+ <div class="tl-body">Standard DCF-modell for utbyggingsprosjekt. Verdsettelsesdato 24. mars 2026, ferdigstillelse 30. juni 2027 (15 mnd). Kalkulasjonsrente 10 % p.a. med sensitivitet 8 %/12 %. Kontantstrøm: utbyggingskostnader t=0, entreprise diskontert snitt t=9 mnd, inntekter t=15 mnd. NPV ved målpris +4 693 000 (IRR ~16 %). NPV ved markedspris lav −1 344 000, høy +964 000. Break-even NV-pris 4 838 000 — mellom DNBs lav og høy indikasjon. ROE ved målpris 21 % på 15 mnd.</div>
+ </div>
+
+ <div class="tl-item">
+ <div class="tl-dot green"></div>
+ <div class="tl-title">Nåverdi-fane lagt til — DCF-kalkyle ferdigstillelse juni 2027</div>
+ <div class="tl-body">Standard DCF-modell. Kalkulasjonsrente 10 % p.a. med sensitivitet 8/12 %. NPV ved målpris +4 693 000 (IRR ~16 %). NPV mrk.lav −1 344 000, mrk.høy +964 000. Break-even NV-pris 4 838 000. ROE ved målpris 21 % på 15 mnd.</div>
+ </div>
+
+ <div class="tl-item">
+ <div class="tl-dot green"></div>
+ <div class="tl-title">Kontantstrøm-fane lagt til — månedlig kontantstrøm mars 2026–juni 2027</div>
+ <div class="tl-body">Finansieringsstruktur og månedlig kontantstrøm med akkumulert byggelånssaldo og rente. Sluttoppgjør ved fire prisnivåer. Fritt overskudd etter tilbakebetaling av all kapital positivt kun ved målpris (+2 632 000). DB-andel AG 40 %: +1 790 000 ved målpris.</div>
+ </div>
+
+ <div class="tl-item">
+ <div class="tl-dot green"></div>
+ <div class="tl-title">Endringslogg-fane lagt til</div>
+ <div class="tl-body">Denne fanen. Kronologisk logg over alle endringer fra begge arbeidsøkter, basert på chat-historikk.</div>
+ </div>
+
+ </div>
+
+ <div class="section-title" style="margin-top:22px;">Datakilder benyttet</div>
+ <table class="risk-table compact-table">
+ <thead><tr><th>Kilde</th><th>Tabell/dokument</th><th>Brukt til</th></tr></thead>
+ <tbody>
+ <tr><td>SSB</td><td>12852 — Kommunefordelt månedslønn</td><td>Lønn alle aldersgrupper Bodø 2025</td></tr>
+ <tr><td>SSB</td><td>06944 — Inntekt husholdninger etter type</td><td>Husholdningsinntekt og fordeling Bodø 2024</td></tr>
+ <tr><td>DNB Eiendom</td><td>E-post Thomas N. Johnsen, 12.06.2024</td><td>Borettslagsmodell, markedsprisindikasjon</td></tr>
+ <tr><td>Ekhorn/LinkPro</td><td>Notat til styremøte 23.03.2026</td><td>Entreprisekostnad (anbudstestet), målpris 5,5M, forhåndssalgskrav</td></tr>
+ <tr><td>Kalkyle</td><td>Kalkyle_GV26a_VTV_20260209</td><td>Totalkostnad, kostnadsfordeling alle poster</td></tr>
+ <tr><td>Regnskap</td><td>SP_ÅrsRsk, SP_Likviditet</td><td>Finansiell stilling, bokført EK, kassebeholdning</td></tr>
+ <tr><td>Aksjonæravtale</td><td>27.11.2018</td><td>Rettigheter, vetorett, transparenskrav, habilitetsregler</td></tr>
+ <tr><td>Bodø kommune</td><td>Perspektivmelding 2024–2033</td><td>Befolkningsprognoser, aldersstruktur</td></tr>
+ <tr><td>KBNN</td><td>Fremtidens boligbehov Nord-Norge</td><td>Strukturell boligetterspørsel, 5-minutters tettsted</td></tr>
+ <tr><td>Norges Bank</td><td>Rentebane per 24.03.2026</td><td>Renteforutsetninger 2026–2028</td></tr>
+ </tbody>
+ </table>
+
+ </div>
+ </div>
+</div>
+
+<script>
+function showTab(id, el) {
+ document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+ document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+ document.getElementById('tab-' + id).classList.add('active');
+ el.classList.add('active');
+}
+</script>
+</body>
+</html>
