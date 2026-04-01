@@ -6,19 +6,65 @@
 <title>Risikomodell — Solhaugen Prosjekt / Areal-Gruppen</title>
 <style>
  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
- body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f3ef; color: #1a1a18; padding: 24px; min-height: 100vh; }
- .wrapper { max-width: 860px; margin: 0 auto; }
+ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f2ede4; color: #1a1a18; padding: 24px; min-height: 100vh; }
+  .wrapper { max-width: 1140px; margin: 0 auto; }
  .header { background: #1F3864; color: white; padding: 20px 26px 16px; border-radius: 10px 10px 0 0; }
  .header h1 { font-size: 17px; font-weight: 500; letter-spacing: .01em; }
  .header p { font-size: 12px; opacity: .7; margin-top: 3px; }
  .header .badge { display: inline-block; background: #E24B4A; color: white; font-size: 11px; padding: 2px 10px; border-radius: 20px; margin-top: 6px; font-weight: 500; }
- .card { background: white; border-radius: 0 0 10px 10px; border: 0.5px solid #d3d1c7; overflow: hidden; }
- .tabs { display: flex; border-bottom: 1px solid #e0e0dc; background: #f7f7f5; overflow-x: auto; }
- .tab { padding: 10px 18px; font-size: 13px; cursor: pointer; border-bottom: 2px solid transparent; color: #73726c; transition: all .15s; white-space: nowrap; user-select: none; }
- .tab.active { border-bottom-color: #2E6090; color: #1a1a18; font-weight: 500; }
- .tab:hover:not(.active) { background: white; }
- .panel { display: none; padding: 20px 24px 28px; }
- .panel.active { display: block; }
+ .card { background: #faf7f2; border-radius: 0 0 10px 10px; border: 0.5px solid #d4ccc0; overflow: visible; }
+  /* ── SIDEBAR LAYOUT — matcher modellens design-system ── */
+  .app-layout { display: flex; align-items: flex-start; min-height: 500px; }
+  .sidebar {
+    width: 196px;
+    flex-shrink: 0;
+    background: #ede8de;
+    border-right: 1.5px solid #d4ccc0;
+    padding: 8px 0 16px;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 24px;
+    align-self: flex-start;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+  }
+  .sidebar-section {
+    font-size: 10px;
+    font-weight: 600;
+    color: #9a9186;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 16px 14px 5px;
+    margin-top: 2px;
+  }
+  .sidebar-section:first-child { padding-top: 10px; }
+  .content-area { flex: 1; min-width: 0; border-left: none; }
+  .tabs { display: none; }
+  .tab {
+    padding: 8px 14px 8px 16px;
+    font-size: 12.5px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    color: #6b6256;
+    transition: background .12s, color .12s, border-color .12s;
+    white-space: nowrap;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    line-height: 1.3;
+  }
+  .tab:hover { background: #e4dcd0; color: #1a1a18; }
+  .tab.active {
+    border-left-color: #2E6090;
+    color: #1a1a18;
+    font-weight: 600;
+    background: #d9d0c4;
+  }
+  .tab .tab-icon { font-size: 13px; width: 16px; text-align: center; flex-shrink: 0; opacity: 0.8; }
+  .panel { display: none; padding: 22px 26px 32px; }
+  .panel.active { display: block; }
 
  .scenario-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 20px; }
  .scenario-card { border-radius: 8px; padding: 14px 16px; border: 1.5px solid transparent; }
@@ -37,9 +83,9 @@
 
  .risk-table { width: 100%; border-collapse: collapse; font-size: 12px; }
  .risk-table th { background: #2C3E50; color: white; padding: 7px 10px; text-align: left; font-weight: 500; font-size: 11px; }
- .risk-table td { padding: 7px 10px; border-bottom: 0.5px solid #e0e0dc; vertical-align: top; line-height: 1.4; }
+ .risk-table td { padding: 7px 10px; border-bottom: 0.5px solid #d4ccc0; vertical-align: top; line-height: 1.4; }
  .risk-table tr:last-child td { border-bottom: none; }
- .risk-table tr:nth-child(even) td { background: #f7f7f5; }
+ .risk-table tr:nth-child(even) td { background: #ede8de; }
  .compact-table { font-size: 11px; }
  .compact-table th { font-size: 10px; padding: 6px 8px; white-space: nowrap; }
  .compact-table td { padding: 6px 8px; font-size: 11px; }
@@ -53,17 +99,17 @@
  .pill-blue { background: #B5D4F4; color: #0C447C; }
 
  .kv-grid { display: grid; gap: 10px; }
- .kv { background: #f7f7f5; border-radius: 8px; padding: 12px 14px; }
- .kv label { font-size: 11px; color: #73726c; display: block; margin-bottom: 4px; }
+ .kv { background: #ede8de; border-radius: 8px; padding: 12px 14px; }
+ .kv label { font-size: 11px; color: #6b6256; display: block; margin-bottom: 4px; }
  .kv .val { font-size: 19px; font-weight: 500; }
- .kv .sub { font-size: 11px; color: #73726c; margin-top: 2px; }
+ .kv .sub { font-size: 11px; color: #6b6256; margin-top: 2px; }
 
- .section-title { font-size: 11px; font-weight: 500; color: #73726c; margin-bottom: 10px; margin-top: 18px; text-transform: uppercase; letter-spacing: .06em; }
+ .section-title { font-size: 11px; font-weight: 500; color: #6b6256; margin-bottom: 10px; margin-top: 18px; text-transform: uppercase; letter-spacing: .06em; }
  .section-title:first-child { margin-top: 0; }
 
  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
- .bar-label { font-size: 12px; min-width: 160px; color: #73726c; }
- .bar-track { flex: 1; height: 10px; background: #e0e0dc; border-radius: 5px; overflow: hidden; }
+ .bar-label { font-size: 12px; min-width: 160px; color: #6b6256; }
+ .bar-track { flex: 1; height: 10px; background: #d4ccc0; border-radius: 5px; overflow: hidden; }
  .bar-fill { height: 100%; border-radius: 5px; }
  .bar-val { font-size: 12px; min-width: 60px; text-align: right; font-weight: 500; }
 
@@ -76,7 +122,7 @@
  .conclusion p { font-size: 12px; line-height: 1.55; }
 
  .timeline { position: relative; padding-left: 20px; }
- .timeline::before { content: ''; position: absolute; left: 5px; top: 0; bottom: 0; width: 1.5px; background: #d3d1c7; }
+ .timeline::before { content: ''; position: absolute; left: 5px; top: 0; bottom: 0; width: 1.5px; background: #d4ccc0; }
  .tl-item { position: relative; margin-bottom: 14px; }
  .tl-dot { position: absolute; left: -18px; top: 3px; width: 10px; height: 10px; border-radius: 50%; }
  .tl-dot.red { background: #E24B4A; }
@@ -84,7 +130,7 @@
  .tl-dot.blue { background: #378ADD; }
  .tl-dot.green { background: #639922; }
  .tl-title { font-size: 13px; font-weight: 500; }
- .tl-body { font-size: 12px; color: #73726c; line-height: 1.5; margin-top: 2px; }
+ .tl-body { font-size: 12px; color: #6b6256; line-height: 1.5; margin-top: 2px; }
 
  .rate-box { background: #FCEBEB; border: 1.5px solid #F09595; border-radius: 8px; padding: 12px 16px; margin-bottom: 18px; }
  .rate-box strong { font-size: 14px; color: #791F1F; font-weight: 500; display: block; margin-bottom: 4px; }
@@ -108,17 +154,23 @@
  </div>
 
  <div class="card">
- <div class="tabs">
- <div class="tab active" onclick="showTab('oversikt', this)">Oversikt</div>
- <div class="tab" onclick="showTab('renter', this)">Renteeffekt</div>
- <div class="tab" onclick="showTab('borettslag', this)">Borettslag</div>
- <div class="tab" onclick="showTab('alternativer', this)">Alternativer</div>
- <div class="tab" onclick="showTab('risikomatrise', this)">Risikomatrise</div>
- <div class="tab" onclick="showTab('konklusjon', this)">Anbefaling</div>
- <div class="tab" onclick="showTab('naverdi', this)">Nåverdi</div>
- <div class="tab" onclick="showTab('kontantstrøm', this)">Kontantstrøm</div>
- <div class="tab" onclick="showTab('logg', this)">Endringslogg</div>
- </div>
+ <div class="app-layout">
+ <nav class="sidebar">
+   <div class="sidebar-section">Analyse</div>
+   <div class="tab active" onclick="showTab('oversikt', this)">Oversikt</div>
+   <div class="tab" onclick="showTab('renter', this)">Renteeffekt</div>
+   <div class="tab" onclick="showTab('borettslag', this)">Borettslag</div>
+   <div class="sidebar-section">Strategi</div>
+   <div class="tab" onclick="showTab('alternativer', this)">Alternativer</div>
+   <div class="tab" onclick="showTab('risikomatrise', this)">Risikomatrise</div>
+   <div class="tab" onclick="showTab('konklusjon', this)">Anbefaling</div>
+   <div class="sidebar-section">Finans</div>
+   <div class="tab" onclick="showTab('naverdi', this)">Nåverdi</div>
+   <div class="tab" onclick="showTab('kontantstrøm', this)">Kontantstrøm</div>
+   <div class="sidebar-section">Om modellen</div>
+   <div class="tab" onclick="showTab('logg', this)">Endringslogg</div>
+ </nav>
+ <div class="content-area">
 
  <!-- OVERSIKT -->
  <div id="tab-oversikt" class="panel active">
@@ -146,13 +198,13 @@
  <div class="kv"><label>Gap: DNB vs. break-even</label><div class="val" style="color:#A32D2D;">−291 til +35 000</div><div class="sub">Per leilighet</div></div>
  <div class="kv"><label>Gap: DNB vs. målpris</label><div class="val" style="color:#A32D2D;">−525 til −850 000</div><div class="sub">Per leilighet</div></div>
  </div>
- <div style="background:#f7f7f5;border-radius:8px;padding:10px 14px;border:0.5px solid #d3d1c7;margin-bottom:20px;">
+ <div style="background:#ede8de;border-radius:8px;padding:10px 14px;border:0.5px solid #d4ccc0;margin-bottom:20px;">
  <div style="font-size:10px;font-weight:500;color:#73726c;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Fremoverskuende beslutningskalkyle — gjenstående kostnader + tomt som EK</div>
  <div class="kv-grid" style="grid-template-columns: repeat(4, minmax(0,1fr));">
- <div class="kv" style="background:white;"><label>Gjenstående kostnader</label><div class="val" style="font-size:16px;">31,3 MNOK</div><div class="sub">Ekskl. tomt og sunk costs</div></div>
- <div class="kv" style="background:white;"><label>Tomt (pantesikkerhet)</label><div class="val" style="font-size:16px;">4,95 MNOK</div><div class="sub">Eiendel — sikkerhet for byggelån</div></div>
- <div class="kv" style="background:white;"><label>Fremover break-even</label><div class="val" style="font-size:16px;color:#3B6D11;">4 536 000</div><div class="sub">Gjenstående + tomt ÷ 8</div></div>
- <div class="kv" style="background:white;"><label>DNB vs. fremover BE</label><div class="val" style="font-size:16px;color:#3B6D11;">+114 til +439 000</div><div class="sub">Markedspris over fremover BE</div></div>
+ <div class="kv" style="background:#faf8f4;"><label>Gjenstående kostnader</label><div class="val" style="font-size:16px;">31,3 MNOK</div><div class="sub">Ekskl. tomt og sunk costs</div></div>
+ <div class="kv" style="background:#faf8f4;"><label>Tomt (pantesikkerhet)</label><div class="val" style="font-size:16px;">4,95 MNOK</div><div class="sub">Eiendel — sikkerhet for byggelån</div></div>
+ <div class="kv" style="background:#faf8f4;"><label>Fremover break-even</label><div class="val" style="font-size:16px;color:#3B6D11;">4 536 000</div><div class="sub">Gjenstående + tomt ÷ 8</div></div>
+ <div class="kv" style="background:#faf8f4;"><label>DNB vs. fremover BE</label><div class="val" style="font-size:16px;color:#3B6D11;">+114 til +439 000</div><div class="sub">Markedspris over fremover BE</div></div>
  </div>
  <p style="font-size:11px;color:#73726c;margin-top:8px;">Gjenstående: 4500+4501+4504+4505+4506+4510+4513+4517 = 31 307 000 + finanskostnad 1 532 000 = 32 839 000 totalt gjenstående inkl. finans. Tomt 4 950 840 tillegges som EK-stilt kapital: sum 36 290 000 ÷ 8 = 4 536 000. Merk: dette er beslutningskalkylen for alternativ A (bygg) — ikke regnskapsmessig break-even som inkluderer alle historiske kostnader.</p>
  </div>
@@ -189,7 +241,7 @@
  </tr>
  </thead>
  <tbody>
- <tr style="background:#f7f7f5;">
+ <tr style="background:#ede8de;">
  <td>Alle aldersgrupper</td>
  <td>56 620</td>
  <td>61 690</td>
@@ -209,7 +261,7 @@
  <td>49 253</td>
  <td>2 955 000</td>
  </tr>
- <tr style="background:#f7f7f5;">
+ <tr style="background:#ede8de;">
  <td>30–54 år</td>
  <td>58 580</td>
  <td>63 530</td>
@@ -272,7 +324,7 @@
  <td style="color:#A32D2D"><strong>−1 186 000</strong></td>
  <td style="color:#A32D2D"><strong>−1 745 000</strong></td>
  </tr>
- <tr style="background:#f7f7f5;">
+ <tr style="background:#ede8de;">
  <td>Alle aldre (snitt)</td>
  <td>56 620</td>
  <td>4 597 000</td>
@@ -355,7 +407,7 @@
  <td>—</td>
  <td>—</td>
  </tr>
- <tr style="background:#f7f7f5;">
+ <tr style="background:#ede8de;">
  <td>Aleneboende</td>
  <td>10 948</td>
  <td>42,5 %</td>
@@ -383,7 +435,7 @@
  <td><span class="pill pill-green">Tohusholdning</span></td>
  <td class="relevans">Høy kjøpekraft — men VTVs areal for lite</td>
  </tr>
- <tr style="background:#f7f7f5;">
+ <tr style="background:#ede8de;">
  <td>Andre husholdninger (rest)</td>
  <td>2 620</td>
  <td>10,2 %</td>
@@ -438,7 +490,7 @@
  <td style="color:#A32D2D"><strong>−918 000</strong></td>
  <td style="color:#A32D2D"><strong>−1 477 000</strong></td>
  </tr>
- <tr style="background:#f7f7f5;">
+ <tr style="background:#ede8de;">
  <td>Enslig mor/far m/barn</td>
  <td>1 077</td>
  <td>49 217</td>
@@ -577,7 +629,7 @@
  </div>
 
  <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:18px;">
- <div style="background:#f7f7f5;border-radius:8px;padding:10px 12px;border:0.5px solid #d3d1c7;">
+ <div style="background:#ede8de;border-radius:8px;padding:10px 12px;border:0.5px solid #d4ccc0;">
  <div style="font-size:10px;color:#73726c;margin-bottom:2px;">Alle husholdninger (SSB 2024)</div>
  <div style="font-size:17px;font-weight:500;">25 782</div>
  <div style="font-size:10px;color:#73726c;">Bodø kommune</div>
@@ -627,7 +679,7 @@
  <td>2 582</td>
  <td><strong>24 657</strong></td>
  </tr>
- <tr style="background:#f7f7f5;">
+ <tr style="background:#ede8de;">
  <td>Markedspris høy (DNB)</td>
  <td>4 975 000</td>
  <td>497 500</td>
@@ -694,7 +746,7 @@
  <td>2 582</td>
  <td><strong>20 578</strong></td>
  </tr>
- <tr style="background:#f7f7f5;">
+ <tr style="background:#ede8de;">
  <td>Markedspris høy (DNB)</td>
  <td>4 975 000</td>
  <td>1 243 750</td>
@@ -753,7 +805,7 @@
  <td><span class="pill pill-red">67,6 %</span></td>
  <td><span class="pill pill-red">72,8 %</span></td>
  </tr>
- <tr style="background:#f7f7f5;">
+ <tr style="background:#ede8de;">
  <td>Alle aldre (snitt)</td>
  <td>40 500</td>
  <td><span class="pill pill-red">50,8 %</span></td>
@@ -822,7 +874,7 @@
  <td>2 582</td>
  <td><strong>13 782</strong></td>
  </tr>
- <tr style="background:#f7f7f5;">
+ <tr style="background:#ede8de;">
  <td>Markedspris høy (DNB)</td>
  <td>4 975 000</td>
  <td>2 487 500</td>
@@ -875,7 +927,7 @@
  <tbody>
  <tr><td>Aleneboende</td><td>34 092</td>
  <td><span class="pill pill-amber">40,4 %</span></td><td><span class="pill pill-amber">42,7 %</span></td><td><span class="pill pill-amber">43,3 %</span></td><td><span class="pill pill-red">46,4 %</span></td></tr>
- <tr style="background:#f7f7f5;"><td>55+ median</td><td>44 100</td>
+ <tr style="background:#ede8de;"><td>55+ median</td><td>44 100</td>
  <td><span class="pill pill-amber">31,3 %</span></td><td><span class="pill pill-amber">33,0 %</span></td><td><span class="pill pill-amber">33,5 %</span></td><td><span class="pill pill-red">35,9 %</span></td></tr>
  <tr><td><strong>55+ øvre kvartil</strong></td><td><strong>52 500</strong></td>
  <td><span class="pill pill-green"><strong>26,3 %</strong></span></td><td><span class="pill pill-green"><strong>27,8 %</strong></span></td><td><span class="pill pill-green"><strong>28,2 %</strong></span></td><td><span class="pill pill-amber"><strong>30,2 %</strong></span></td></tr>
@@ -916,7 +968,7 @@
  <td>2 582</td>
  <td><strong>11 064</strong></td>
  </tr>
- <tr style="background:#f7f7f5;">
+ <tr style="background:#ede8de;">
  <td>Markedspris høy (DNB)</td>
  <td>4 975 000</td>
  <td>2 985 000</td>
@@ -969,7 +1021,7 @@
  <tbody>
  <tr><td>Aleneboende</td><td>34 092</td>
  <td><span class="pill pill-amber">32,5 %</span></td><td><span class="pill pill-amber">34,2 %</span></td><td><span class="pill pill-amber">34,7 %</span></td><td><span class="pill pill-amber">37,0 %</span></td></tr>
- <tr style="background:#f7f7f5;"><td><strong>55+ median ★</strong></td><td><strong>44 100</strong></td>
+ <tr style="background:#ede8de;"><td><strong>55+ median ★</strong></td><td><strong>44 100</strong></td>
  <td><span class="pill pill-green"><strong>25,1 %</strong></span></td><td><span class="pill pill-green"><strong>26,4 %</strong></span></td><td><span class="pill pill-green"><strong>26,8 %</strong></span></td><td><span class="pill pill-green"><strong>28,6 %</strong></span></td></tr>
  <tr><td><strong>55+ øvre kvartil</strong></td><td><strong>52 500</strong></td>
  <td><span class="pill pill-green"><strong>21,1 %</strong></span></td><td><span class="pill pill-green"><strong>22,2 %</strong></span></td><td><span class="pill pill-green"><strong>22,5 %</strong></span></td><td><span class="pill pill-green"><strong>24,0 %</strong></span></td></tr>
@@ -1011,7 +1063,7 @@
  <td><span class="pill pill-red">81,1 %</span></td>
  <td><span class="pill pill-red">87,5 %</span></td>
  </tr>
- <tr style="background:#f7f7f5;">
+ <tr style="background:#ede8de;">
  <td>Alle aldre (snitt)</td>
  <td>56 620</td>
  <td>40 500</td>
@@ -1082,7 +1134,7 @@
  <td style="color:#A32D2D">56,9 %</td>
  <td><span class="pill pill-red">Ikke bærekraftig</span></td>
  </tr>
- <tr style="background:#f7f7f5;">
+ <tr style="background:#ede8de;">
  <td>Borettslag m/innskuddslån</td>
  <td>Markedspris 4 975 000</td>
  <td>498 000 (10 %)</td>
@@ -1140,7 +1192,7 @@
  <td><span class="pill pill-red">70,0 %</span></td>
  <td><span class="pill pill-amber">37,0 %</span></td>
  </tr>
- <tr style="background:#f7f7f5;">
+ <tr style="background:#ede8de;">
  <td>Enslig mor/far m/barn</td>
  <td>49 217</td>
  <td><span class="pill pill-red">50,1 %</span></td>
@@ -1414,7 +1466,7 @@
  <td>1,000</td>
  <td>4 285 000</td>
  </tr>
- <tr style="background:#f7f7f5;">
+ <tr style="background:#ede8de;">
  <td>Totalentreprise inkl. betong (12 like rater)</td>
  <td>23 657 401</td>
  <td>t = 3–15 mnd (snitt t=9 mnd)</td>
@@ -1428,7 +1480,7 @@
  <td>0,9315</td>
  <td>1 427 000</td>
  </tr>
- <tr style="background:#f7f7f5;">
+ <tr style="background:#ede8de;">
  <td>Salgs- og markedsføringskostnader</td>
  <td>614 831</td>
  <td>t = 12 mnd</td>
@@ -1449,7 +1501,7 @@
  <td>—</td>
  <td><strong>29 415 000</strong></td>
  </tr>
- <tr style="background:#f7f7f5;">
+ <tr style="background:#ede8de;">
  <td>Tomt (alternativkostnad — eiendel med bundet kapital)</td>
  <td>4 950 840</td>
  <td>t = −∞ (allerede betalt)</td>
@@ -1473,7 +1525,7 @@
  <td>0,8877</td>
  <td>33 022 000</td>
  </tr>
- <tr style="background:#f7f7f5;">
+ <tr style="background:#ede8de;">
  <td>Markedspris høy — 4 975 000 × 8</td>
  <td>39 800 000</td>
  <td>t = 15 mnd</td>
@@ -1521,7 +1573,7 @@
  <td style="color:#A32D2D"><strong>−1 918 000</strong></td>
  <td style="color:#A32D2D"><strong>−538 000</strong></td>
  </tr>
- <tr style="background:#f7f7f5;">
+ <tr style="background:#ede8de;">
  <td>Markedspris høy — 4 975 000</td>
  <td>35 330 000</td>
  <td style="color:#3B6D11"><strong>+1 367 000</strong></td>
@@ -1572,7 +1624,7 @@
  <td style="color:#A32D2D">−3,9 %</td>
  <td><span class="pill pill-red">Negativ avkastning</span></td>
  </tr>
- <tr style="background:#f7f7f5;">
+ <tr style="background:#ede8de;">
  <td>Markedspris høy — 4 975 000</td>
  <td style="color:#3B6D11">+2 460 000</td>
  <td style="color:#3B6D11">~5,5 % p.a.</td>
@@ -1665,7 +1717,7 @@
             <td>−407 000</td><td>−1 971 000</td><td>−51 000</td><td>−49 000</td>
             <td><strong>−2 478 000</strong></td><td>2 429 000</td><td>2 478 000</td>
           </tr>
-          <tr style="background:#f7f7f5;">
+          <tr style="background:#ede8de;">
             <td>Aug 2026 — mnd 2</td>
             <td>−357 000</td><td>−1 971 000</td><td>−51 000</td><td>−63 000</td>
             <td><strong>−2 442 000</strong></td><td>4 808 000</td><td>4 920 000</td>
@@ -1675,7 +1727,7 @@
             <td>−357 000</td><td>−1 971 000</td><td>−51 000</td><td>−77 000</td>
             <td><strong>−2 456 000</strong></td><td>7 187 000</td><td>7 376 000</td>
           </tr>
-          <tr style="background:#f7f7f5;">
+          <tr style="background:#ede8de;">
             <td>Okt 2026 — mnd 4</td>
             <td>−357 000</td><td>−1 971 000</td><td>−51 000</td><td>−91 000</td>
             <td><strong>−2 470 000</strong></td><td>9 566 000</td><td>9 846 000</td>
@@ -1685,7 +1737,7 @@
             <td>−357 000</td><td>−1 971 000</td><td>−51 000</td><td>−105 000</td>
             <td><strong>−2 484 000</strong></td><td>11 945 000</td><td>12 330 000</td>
           </tr>
-          <tr style="background:#f7f7f5;">
+          <tr style="background:#ede8de;">
             <td>Des 2026 — mnd 6</td>
             <td>−357 000</td><td>−1 971 000</td><td>−51 000</td><td>−118 000</td>
             <td><strong>−2 497 000</strong></td><td>14 324 000</td><td>14 827 000</td>
@@ -1695,7 +1747,7 @@
             <td>−357 000</td><td>−1 971 000</td><td>−51 000</td><td>−132 000</td>
             <td><strong>−2 511 000</strong></td><td>16 703 000</td><td>17 339 000</td>
           </tr>
-          <tr style="background:#f7f7f5;">
+          <tr style="background:#ede8de;">
             <td>Feb 2027 — mnd 8</td>
             <td>−357 000</td><td>−1 971 000</td><td>−51 000</td><td>−146 000</td>
             <td><strong>−2 525 000</strong></td><td>19 082 000</td><td>19 864 000</td>
@@ -1705,7 +1757,7 @@
             <td>−357 000</td><td>−1 971 000</td><td>−51 000</td><td>−160 000</td>
             <td><strong>−2 539 000</strong></td><td>21 461 000</td><td>22 403 000</td>
           </tr>
-          <tr style="background:#f7f7f5;">
+          <tr style="background:#ede8de;">
             <td>Apr 2027 — mnd 10</td>
             <td>−357 000</td><td>−1 971 000</td><td>−51 000</td><td>−174 000</td>
             <td><strong>−2 553 000</strong></td><td>23 840 000</td><td>24 956 000</td>
@@ -1715,7 +1767,7 @@
             <td>−357 000</td><td>−1 971 000</td><td>−51 000</td><td>−188 000</td>
             <td><strong>−2 567 000</strong></td><td>26 219 000</td><td>27 523 000</td>
           </tr>
-          <tr style="background:#f7f7f5;">
+          <tr style="background:#ede8de;">
             <td>Juni 2027 — mnd 12</td>
             <td>−357 000</td><td>−1 971 000</td><td>−51 000</td><td>−202 000</td>
             <td><strong>−2 581 000</strong></td><td>28 598 000</td><td>30 104 000</td>
@@ -1766,7 +1818,7 @@
           </tr>
 
 
-          <tr style="background:#f7f7f5;">
+          <tr style="background:#ede8de;">
             <td>− Uforutsett</td>
             <td>−1 250 000</td><td>−1 250 000</td><td>−1 250 000</td><td>−1 250 000</td>
           </tr>
@@ -1781,7 +1833,7 @@
             <td>− Tilbakebetaling aksjonærlån (AG 2 320 000 + LP 3 480 000)</td>
             <td>−5 800 000</td><td>−5 800 000</td><td>−5 800 000</td><td>−5 800 000</td>
           </tr>
-          <tr style="background:#f7f7f5;">
+          <tr style="background:#ede8de;">
             <td>− Tilbakebetaling kontant EK</td>
             <td>−2 800 000</td><td>−2 800 000</td><td>−2 800 000</td><td>−2 800 000</td>
           </tr>
